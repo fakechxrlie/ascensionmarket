@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import OrderBids from '../components/OrderBids';
+import OrderActions from '../components/OrderActions';
 import { revalidatePath } from 'next/cache';
 
 export default async function Dashboard() {
@@ -291,27 +292,7 @@ export default async function Dashboard() {
                         Booster marked this complete! Please confirm delivery to release funds, or open a dispute if incomplete. (Funds auto-release after 3 days).
                       </div>
                     )}
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <button onClick={async () => {
-                        if (confirm('Are you sure you want to dispute this order? Funds will be frozen and Admin will be alerted.')) {
-                          await fetch(`/api/orders/${order.id}/dispute`, { method: 'POST' });
-                          window.location.reload();
-                        }
-                      }} className="btn-primary" style={{ width: 'auto', padding: '6px 12px', fontSize: '0.7rem', background: 'transparent', border: '1px solid var(--accent-secondary)', color: 'var(--accent-secondary)' }}>
-                        DISPUTE ORDER
-                      </button>
-
-                      {order.status === 'PENDING_COMPLETION' && (
-                        <button onClick={async () => {
-                          if (confirm('Release funds to booster and complete job?')) {
-                            await fetch(`/api/orders/${order.id}/confirm`, { method: 'POST' });
-                            window.location.reload();
-                          }
-                        }} className="btn-primary" style={{ width: 'auto', padding: '6px 12px', fontSize: '0.7rem' }}>
-                          CONFIRM DELIVERY
-                        </button>
-                      )}
-                    </div>
+                    <OrderActions orderId={order.id} status={order.status} />
                   </div>
                 )}
 
