@@ -27,13 +27,20 @@ export default async function RootLayout({
               {session ? (
                 <>
                   <a href="/dashboard">Dashboard</a>
+                  {(session.user as any).role === "OWNER" && (
+                    <>
+                      <a href="/jobs">Job Board</a>
+                      <a href="/owner">Owner Panel</a>
+                    </>
+                  )}
                   {(session.user as any).role === "BOOSTER" && <a href="/jobs">Job Board</a>}
+                  {(session.user as any).role === "USER" && <a href="/verify">Become a Booster</a>}
                   <a href="/api/auth/signout" className="btn-login" style={{ borderColor: 'var(--accent-secondary)', color: 'var(--text-main)', background: 'transparent' }}>Log Out</a>
                 </>
               ) : (
                 <>
                   <a href="/login">Login</a>
-                  <a href="/verify" className="btn-login">Become a Booster</a>
+                  <a href="/login?mode=signup" className="btn-login">Signup</a>
                 </>
               )}
             </div>
