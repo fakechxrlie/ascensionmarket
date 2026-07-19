@@ -57,9 +57,7 @@ export async function POST(req: Request) {
         order_description: `Escrow Payment for Boost Order (${bid.order.startRank} -> ${bid.order.targetRank})`,
         ipn_callback_url: `${siteUrl}/api/webhooks/crypto`,
         success_url: `${siteUrl}/dashboard?payment=success`,
-        cancel_url: `${siteUrl}/dashboard?payment=cancel`,
-        // Force the invoice to expire after 1 hour (3600 seconds)
-        lifetime: 3600
+        cancel_url: `${siteUrl}/dashboard?payment=cancel`
       })
     });
 
