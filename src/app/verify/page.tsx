@@ -118,7 +118,7 @@ export default function Verify() {
         )}
 
         <p style={{ color: 'var(--text-muted)', marginBottom: '20px', fontSize: '0.85rem', lineHeight: '1.4' }}>
-          Verification is required to become a booster on Ascension. Please upload the required documents and select the games you would like to boost.
+          Verification is required to become a booster on Ascension. Please upload the required documents and select the games you would like to boost. <strong>All files are secure and use end-to-end encryption.</strong>
         </p>
         
         <form onSubmit={handleVerify}>
@@ -132,11 +132,11 @@ export default function Verify() {
               {/* Doc 1 */}
               <div>
                 <label className="font-mono" style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
-                  1. CLEAR PHOTO OF YOU HOLDING YOUR PHYSICAL ID NEXT TO YOUR FACE:
+                  1. A clear photo of you holding your physical ID next to your face:
                 </label>
                 <div style={{ border: '1px dashed var(--border-light)', padding: '16px', background: 'var(--bg-card)', cursor: 'pointer', textAlign: 'center', position: 'relative' }}>
                   <span className="font-mono" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    {doc1 ? '✓ FILE LOADED (CLICK TO CHANGE)' : 'SELECT OR DROP IMAGE FILE'}
+                    {doc1 ? '✓ FILE LOADED (CLICK TO CHANGE)' : 'Select or drop image file'}
                   </span>
                   <input 
                     type="file" 
@@ -157,11 +157,11 @@ export default function Verify() {
               {/* Doc 2 */}
               <div>
                 <label className="font-mono" style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
-                  2. HIGH-RESOLUTION PHOTO OF ONLY THE FRONT OF YOUR ID:
+                  2. A high-resolution photo of only the front of your ID:
                 </label>
                 <div style={{ border: '1px dashed var(--border-light)', padding: '16px', background: 'var(--bg-card)', cursor: 'pointer', textAlign: 'center', position: 'relative' }}>
                   <span className="font-mono" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    {doc2 ? '✓ FILE LOADED (CLICK TO CHANGE)' : 'SELECT OR DROP IMAGE FILE'}
+                    {doc2 ? '✓ FILE LOADED (CLICK TO CHANGE)' : 'Select or drop image file'}
                   </span>
                   <input 
                     type="file" 
