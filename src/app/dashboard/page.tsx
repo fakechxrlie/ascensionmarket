@@ -89,7 +89,7 @@ export default async function Dashboard() {
       include: { bids: { where: { status: 'ACCEPTED' } } }
     });
 
-    if (order && order.status === 'COMPLETED' && order.bids[0]) {
+      if (order && order.status === 'COMPLETED' && order.bids[0]) {
       await prisma.review.create({
         data: {
           rating,
@@ -99,6 +99,22 @@ export default async function Dashboard() {
           buyerId: order.buyerId
         }
       });
+      revalidatePath('/dashboard');
+    }
+  }
+
+  // Server Action: Delete open order
+  async function deleteOrder(formData: FormData) {
+    "use server";
+    const orderId = formData.get('orderId') as string;
+    const { prisma } = await import('@/lib/prisma');
+    const { revalidatePath } = await import('next/cache');
+    
+    const order = await prisma.order.findUnique({ where: { id: orderId } });
+    if (order && order.buyerId === userId && order.status === 'OPEN') {
+      await prisma.message.deleteMany({ where: { orderId } });
+      await prisma.bid.deleteMany({ where: { orderId } });
+      await prisma.order.delete({ where: { id: orderId } });
       revalidatePath('/dashboard');
     }
   }
@@ -212,14 +228,24 @@ export default async function Dashboard() {
             {orders.map(order => (
               <div key={order.id} className="panel" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', padding: '16px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                  <h3 className="font-mono" style={{ margin: 0, fontSize: '0.95rem' }}>{order.game}</h3>
-                  <span className="font-mono" style={{ 
-                    padding: '2px 8px', 
-                    border: '1px solid var(--border-light)', 
-                    fontSize: '0.75rem', 
-                    fontWeight: 600,
-                    color: order.status === 'OPEN' ? 'var(--brand)' : order.status === 'IN_PROGRESS' ? 'var(--accent)' : 'var(--text-muted)'
-                  }}>{order.status}</span>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <h3 className="font-mono" style={{ margin: 0, fontSize: '0.95rem' }}>{order.game}</h3>
+                    <span className="font-mono" style={{ 
+                      padding: '2px 8px', 
+                      border: '1px solid var(--border-light)', 
+                      fontSize: '0.75rem', 
+                      fontWeight: 600,
+                      color: order.status === 'OPEN' ? 'var(--brand)' : order.status === 'IN_PROGRESS' ? 'var(--accent)' : 'var(--text-muted)'
+                    }}>{order.status}</span>
+                  </div>
+                  {order.status === 'OPEN' && (
+                    <form action={deleteOrder}>
+                      <input type="hidden" name="orderId" value={order.id} />
+                      <button type="submit" className="font-mono" style={{ background: 'transparent', border: '1px solid var(--accent-secondary)', color: 'var(--accent-secondary)', padding: '2px 8px', fontSize: '0.7rem', cursor: 'pointer', fontWeight: 600 }}>
+                        DELETE ORDER
+                      </button>
+                    </form>
+                  )}
                 </div>
                 <p className="font-mono" style={{ margin: '8px 0', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
                   From: <strong>{order.startRank} {order.startDiv}</strong> ➜ To: <strong>{order.targetRank} {order.targetDiv}</strong>
