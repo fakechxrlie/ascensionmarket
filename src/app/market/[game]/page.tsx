@@ -69,9 +69,10 @@ const GAME_DATA: Record<string, any> = {
       { name: 'Gold', divisions: ['I', 'II', 'III'] },
       { name: 'Platinum', divisions: ['I', 'II', 'III'] },
       { name: 'Diamond', divisions: ['I', 'II', 'III'] },
-      { name: 'Elite', divisions: [] },
-      { name: 'Champion', divisions: [] },
-      { name: 'Unreal', divisions: [] }
+      { name: 'Elite', divisions: ['I', 'II', 'III'] },
+      { name: 'Champion', divisions: ['I', 'II', 'III'] },
+      { name: 'Unreal', divisions: [] },
+      { name: 'Unreal Legend', divisions: [] }
     ]
   }
 };
@@ -172,20 +173,24 @@ export default function GameMarket({ params }: { params: Promise<{ game: string 
           <div style={{ display: 'flex', gap: '15px', marginBottom: '20px', flexWrap: 'wrap' }}>
             <div className="form-group" style={{ flex: 1 }}>
               <label className="font-mono">Platform</label>
-              <select value={platform} onChange={e => setPlatform(e.target.value)} className="input-field" style={{ height: '38px', padding: '0 10px' }}>
-                <option value="PC">PC</option>
-                <option value="PlayStation">PlayStation</option>
-                <option value="Xbox">Xbox</option>
-                <option value="Nintendo Switch">Nintendo Switch</option>
-                <option value="Mobile">Mobile</option>
-              </select>
+              <CustomSelect 
+                value={platform} 
+                onChange={(val) => setPlatform(val)} 
+                options={['PC', 'PlayStation', 'Xbox', 'Nintendo Switch', 'Mobile']} 
+              />
             </div>
             {gameKey === 'apex' && (
               <div className="form-group" style={{ flex: 1, display: 'flex', alignItems: 'center', marginTop: '20px' }}>
-                <label className="font-mono" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
-                  <input type="checkbox" checked={badgeOnly} onChange={e => setBadgeOnly(e.target.checked)} />
-                  Badge Boost Only
-                </label>
+                <div onClick={() => setBadgeOnly(!badgeOnly)} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                  <div style={{
+                    width: '40px', height: '22px', background: badgeOnly ? 'var(--brand)' : 'var(--bg-input)', border: `1px solid ${badgeOnly ? 'var(--brand)' : 'var(--border-light)'}`, borderRadius: '12px', position: 'relative', transition: 'all 0.2s'
+                  }}>
+                    <div style={{
+                      width: '16px', height: '16px', background: badgeOnly ? '#141517' : 'var(--text-muted)', borderRadius: '50%', position: 'absolute', top: '2px', left: badgeOnly ? '20px' : '2px', transition: 'all 0.2s'
+                    }} />
+                  </div>
+                  <span className="font-mono" style={{ color: badgeOnly ? 'var(--brand)' : 'var(--text-main)', fontSize: '0.85rem' }}>Badge Boost Only</span>
+                </div>
               </div>
             )}
           </div>
