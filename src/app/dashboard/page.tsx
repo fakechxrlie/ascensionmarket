@@ -238,13 +238,17 @@ export default async function Dashboard() {
                       color: order.status === 'OPEN' ? 'var(--brand)' : order.status === 'IN_PROGRESS' || order.status === 'PENDING_COMPLETION' ? 'var(--accent)' : order.status === 'DISPUTED' ? 'var(--accent-secondary)' : 'var(--text-muted)'
                     }}>{order.status}</span>
                   </div>
-                  {order.status === 'OPEN' && (
+                  {order.status === 'OPEN' ? (
                     <form action={deleteOrder}>
                       <input type="hidden" name="orderId" value={order.id} />
                       <button type="submit" className="font-mono" style={{ background: 'transparent', border: '1px solid var(--accent-secondary)', color: 'var(--accent-secondary)', padding: '2px 8px', fontSize: '0.7rem', cursor: 'pointer', fontWeight: 600 }}>
                         DELETE ORDER
                       </button>
                     </form>
+                  ) : (
+                    <a href={`/orders/${order.id}`} className="btn-primary" style={{ textDecoration: 'none', padding: '4px 10px', fontSize: '0.75rem', width: 'auto' }}>
+                      GO TO WORKSPACE →
+                    </a>
                   )}
                 </div>
                 <p className="font-mono" style={{ margin: '8px 0', fontSize: '0.9rem', color: 'var(--text-muted)' }}>

@@ -167,7 +167,20 @@ export default function JobBoard() {
                       </span>
                     )}
                   </div>
-                  <span className="font-mono" style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Buyer: {order.buyer.username}</span>
+                  {order.status !== 'OPEN' ? (
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.location.href = `/orders/${order.id}`;
+                      }}
+                      className="btn-primary" 
+                      style={{ padding: '4px 10px', fontSize: '0.75rem', width: 'auto' }}
+                    >
+                      OPEN WORKSPACE →
+                    </button>
+                  ) : (
+                    <span className="font-mono" style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Buyer: {order.buyer.username}</span>
+                  )}
                 </div>
                 <p className="font-mono" style={{ margin: '8px 0', color: 'var(--text-main)', fontSize: '0.9rem' }}>
                   From: <strong>{order.startRank} {order.startDiv}</strong> ➜ To: <strong>{order.targetRank} {order.targetDiv}</strong>

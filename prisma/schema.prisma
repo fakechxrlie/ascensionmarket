@@ -41,6 +41,7 @@ model Order {
   options     String?  // JSON string of options
   status      String   @default("OPEN") // OPEN, IN_PROGRESS, COMPLETED
   escrowAmount Float   @default(0)
+  credentials String?   // Secure Vault: Stores platform, username, password, 2FA
   buyerId     String
   buyer       User     @relation(fields: [buyerId], references: [id])
   bids        Bid[]
