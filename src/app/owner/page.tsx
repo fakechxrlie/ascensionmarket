@@ -58,6 +58,35 @@ export default async function OwnerPanel({ searchParams }: { searchParams: Promi
     revalidatePath('/owner');
   }
 
+  async function resolveDispute(formData: FormData) {
+    "use server";
+    const orderId = formData.get('orderId') as string;
+    const winner = formData.get('winner') as string;
+    
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { bids: { where: { status: 'ACCEPTED' } } }
+    });
+    
+    if (order && order.status === 'DISPUTED') {
+      const targetUserId = winner === 'BOOSTER' ? order.bids[0]?.boosterId : order.buyerId;
+      if (targetUserId) {
+        const payout = winner === 'BOOSTER' ? order.escrowAmount * 0.85 : order.escrowAmount;
+        await prisma.$transaction([
+          prisma.user.update({
+            where: { id: targetUserId },
+            data: { balance: { increment: payout } }
+          }),
+          prisma.order.update({
+            where: { id: orderId },
+            data: { status: winner === 'BUYER' ? 'CANCELLED' : 'COMPLETED', escrowAmount: 0 }
+          })
+        ]);
+        revalidatePath('/owner');
+      }
+    }
+  }
+
   const applications = tab === 'applications' ? await prisma.boosterApplication.findMany({
     where: { status: 'PENDING' },
     include: { user: { select: { username: true, email: true } } }
@@ -281,18 +310,34 @@ export default async function OwnerPanel({ searchParams }: { searchParams: Promi
                     Created: {o.createdAt.toLocaleDateString()}
                   </div>
                 </div>
-                
-                <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
                   <form action={updateOrderStatus} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <input type="hidden" name="orderId" value={o.id} />
                     <select name="status" defaultValue={o.status} className="input-field" style={{ padding: '4px 8px', margin: 0, fontSize: '0.75rem', height: 'auto' }}>
                       <option value="OPEN">OPEN</option>
                       <option value="IN_PROGRESS">IN_PROGRESS</option>
+                      <option value="PENDING_COMPLETION">PENDING_COMPLETION</option>
+                      <option value="DISPUTED">DISPUTED</option>
                       <option value="COMPLETED">COMPLETED</option>
                       <option value="CANCELLED">CANCELLED</option>
                     </select>
-                    <button type="submit" className="btn-primary" style={{ padding: '4px 8px', width: 'auto', fontSize: '0.7rem' }}>UPDATE STATUS</button>
+                    <button type="submit" className="btn-primary" style={{ padding: '4px 8px', width: 'auto', fontSize: '0.7rem' }}>UPDATE</button>
                   </form>
+                  
+                  {o.status === 'DISPUTED' && (
+                    <div style={{ display: 'flex', gap: '5px', borderLeft: '1px solid var(--border-light)', paddingLeft: '10px' }}>
+                      <form action={resolveDispute}>
+                        <input type="hidden" name="orderId" value={o.id} />
+                        <input type="hidden" name="winner" value="BUYER" />
+                        <button type="submit" className="btn-primary" style={{ background: 'var(--accent-secondary)', color: '#141517', padding: '4px 8px', fontSize: '0.7rem', width: 'auto' }}>REFUND BUYER</button>
+                      </form>
+                      <form action={resolveDispute}>
+                        <input type="hidden" name="orderId" value={o.id} />
+                        <input type="hidden" name="winner" value="BOOSTER" />
+                        <button type="submit" className="btn-primary" style={{ background: 'var(--accent)', color: '#141517', padding: '4px 8px', fontSize: '0.7rem', width: 'auto' }}>PAY BOOSTER</button>
+                      </form>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

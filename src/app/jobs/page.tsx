@@ -156,6 +156,16 @@ export default function JobBoard() {
                         ACTIVE JOB
                       </span>
                     )}
+                    {order.status === 'PENDING_COMPLETION' && (
+                      <span className="font-mono" style={{ background: 'var(--accent)', color: '#141517', padding: '2px 6px', fontSize: '0.7rem', fontWeight: 700 }}>
+                        ESCROW PENDING
+                      </span>
+                    )}
+                    {order.status === 'DISPUTED' && (
+                      <span className="font-mono" style={{ background: 'var(--accent-secondary)', color: '#141517', padding: '2px 6px', fontSize: '0.7rem', fontWeight: 700 }}>
+                        DISPUTED
+                      </span>
+                    )}
                   </div>
                   <span className="font-mono" style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Buyer: {order.buyer.username}</span>
                 </div>
@@ -281,13 +291,23 @@ export default function JobBoard() {
                               }}>SUBMIT BID</button>
                             </div>
                           </>
-                        ) : (
+                        ) : order.status === 'IN_PROGRESS' ? (
                           <>
                             <h4 className="font-mono" style={{ marginBottom: '8px', color: 'var(--brand)', fontSize: '0.85rem' }}>BOOST IN PROGRESS</h4>
                             <p className="font-mono" style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '12px' }}>You are actively working on this order. Chat with the buyer for updates.</p>
-                            <button className="btn-primary" style={{ width: '100%' }} onClick={() => completeJob(order.id)}>MARK COMPLETE & CLAIM FUNDS</button>
+                            <button className="btn-primary" style={{ width: '100%' }} onClick={() => completeJob(order.id)}>MARK COMPLETE & WAIT FOR ESCROW</button>
                           </>
-                        )}
+                        ) : order.status === 'PENDING_COMPLETION' ? (
+                          <>
+                            <h4 className="font-mono" style={{ marginBottom: '8px', color: 'var(--accent)', fontSize: '0.85rem' }}>PENDING COMPLETION</h4>
+                            <p className="font-mono" style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '12px' }}>You marked this order as complete. Waiting for buyer to confirm delivery. Funds will auto-release in 3 days if buyer does not respond.</p>
+                          </>
+                        ) : order.status === 'DISPUTED' ? (
+                          <>
+                            <h4 className="font-mono" style={{ marginBottom: '8px', color: 'var(--accent-secondary)', fontSize: '0.85rem' }}>ORDER DISPUTED</h4>
+                            <p className="font-mono" style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '12px' }}>The buyer has opened a dispute. Escrow is frozen. An admin will review the chat logs shortly.</p>
+                          </>
+                        ) : null}
                       </div>
                       <div>
                         {session?.user && <OrderChat orderId={order.id} boosterId={(session.user as any).id} currentUsername={(session.user as any).name} />}

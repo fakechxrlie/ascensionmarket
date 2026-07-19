@@ -32,7 +32,42 @@ export async function GET(request: Request) {
       ]);
     }
 
-    return NextResponse.json({ success: true, deletedCount: orderIds.length }, { status: 200 });
+    // --- AUTO RELEASE TIMER LOGIC ---
+    // Release funds for orders in PENDING_COMPLETION where completedAt is older than 3 days
+    const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+    
+    const pendingOrders = await prisma.order.findMany({
+      where: {
+        status: 'PENDING_COMPLETION',
+        completedAt: { lt: threeDaysAgo }
+      },
+      include: { bids: { where: { status: 'ACCEPTED' } } }
+    });
+
+    let autoReleasedCount = 0;
+    for (const po of pendingOrders) {
+      const acceptedBid = po.bids[0];
+      if (acceptedBid) {
+        const payout = po.escrowAmount * 0.85;
+        await prisma.$transaction([
+          prisma.user.update({
+            where: { id: acceptedBid.boosterId },
+            data: { balance: { increment: payout } }
+          }),
+          prisma.order.update({
+            where: { id: po.id },
+            data: { status: 'COMPLETED', escrowAmount: 0 }
+          })
+        ]);
+        autoReleasedCount++;
+      }
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      deletedCount: orderIds.length,
+      autoReleasedCount
+    }, { status: 200 });
   } catch (error) {
     console.error('CRON CLEANUP ERROR:', error);
     return NextResponse.json({ error: 'Failed to cleanup old orders' }, { status: 500 });

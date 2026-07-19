@@ -47,6 +47,7 @@ model Order {
   messages    Message[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  completedAt DateTime?
   review      Review?
 }
 

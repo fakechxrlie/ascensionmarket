@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { sendAdminLog } from '@/lib/discord';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -27,23 +28,19 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       return NextResponse.json({ error: 'Order is not in progress.' }, { status: 400 });
     }
 
-    const payout = bid.order.escrowAmount * 0.85; // 15% platform fee
+    // Move to PENDING_COMPLETION and start 3-day timer
+    await prisma.order.update({
+      where: { id: bid.orderId },
+      data: { status: 'PENDING_COMPLETION', completedAt: new Date() }
+    });
 
-    // Complete Order Transaction
-    await prisma.$transaction([
-      // Pay Booster
-      prisma.user.update({
-        where: { id: bid.boosterId },
-        data: { balance: { increment: payout } }
-      }),
-      // Complete Order
-      prisma.order.update({
-        where: { id: bid.orderId },
-        data: { status: 'COMPLETED', escrowAmount: 0 }
-      })
-    ]);
+    await sendAdminLog({
+      title: '✅ JOB PENDING COMPLETION',
+      description: `Order **${bid.order.id}** for **${bid.order.game}** has been marked complete by the Booster. Waiting for buyer confirmation or 3-day auto-release.`,
+      color: 0xFFA500 // Orange
+    });
 
-    return NextResponse.json({ success: true, payout }, { status: 200 });
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
     return NextResponse.json({ error: 'Failed to complete order' }, { status: 500 });
   }

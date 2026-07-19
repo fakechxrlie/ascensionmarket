@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { sendOrderBiddingLog } from '@/lib/discord';
 
 export async function POST(req: Request) {
   try {
@@ -25,6 +26,17 @@ export async function POST(req: Request) {
         options: JSON.stringify(options),
         buyerId: (session.user as any).id,
       }
+    });
+
+    await sendOrderBiddingLog({
+      title: '🚨 NEW ORDER POSTED FOR BIDDING!',
+      description: `A new order has been posted for **${game}**!`,
+      color: 0x00E676, // Green
+      fields: [
+        { name: 'Buyer', value: (session.user as any).name, inline: true },
+        { name: 'Current Rank', value: `${startRank} ${startDiv || ''}`, inline: true },
+        { name: 'Target Rank', value: `${targetRank} ${targetDiv || ''}`, inline: true }
+      ]
     });
 
     return NextResponse.json({ order }, { status: 201 });
@@ -51,7 +63,7 @@ export async function GET(req: Request) {
         where: {
           OR: [
             { status: 'OPEN' },
-            ...(userId ? [{ status: 'IN_PROGRESS', bids: { some: { boosterId: userId, status: 'ACCEPTED' } } }] : [])
+            ...(userId ? [{ status: { in: ['IN_PROGRESS', 'PENDING_COMPLETION', 'DISPUTED'] }, bids: { some: { boosterId: userId, status: 'ACCEPTED' } } }] : [])
           ]
         },
         include: { 

@@ -235,7 +235,7 @@ export default async function Dashboard() {
                       border: '1px solid var(--border-light)', 
                       fontSize: '0.75rem', 
                       fontWeight: 600,
-                      color: order.status === 'OPEN' ? 'var(--brand)' : order.status === 'IN_PROGRESS' ? 'var(--accent)' : 'var(--text-muted)'
+                      color: order.status === 'OPEN' ? 'var(--brand)' : order.status === 'IN_PROGRESS' || order.status === 'PENDING_COMPLETION' ? 'var(--accent)' : order.status === 'DISPUTED' ? 'var(--accent-secondary)' : 'var(--text-muted)'
                     }}>{order.status}</span>
                   </div>
                   {order.status === 'OPEN' && (
@@ -260,7 +260,6 @@ export default async function Dashboard() {
                         {order.review.comment && <p style={{ color: 'var(--text-muted)', marginTop: '4px' }}>"{order.review.comment}"</p>}
                       </div>
                     ) : (
-                      // Review Submission form (only if no review has been left yet)
                       <div style={{ background: 'var(--bg-input)', padding: '12px 18px', border: '1px dashed var(--border-light)' }}>
                         <h4 className="font-mono" style={{ fontSize: '0.8rem', color: 'var(--brand)', marginBottom: '10px' }}>LEAVE BOOSTER FEEDBACK</h4>
                         <form action={submitReview} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -276,16 +275,8 @@ export default async function Dashboard() {
                             </select>
                           </div>
                           <div style={{ display: 'flex', gap: '10px' }}>
-                            <input 
-                              type="text" 
-                              name="comment" 
-                              placeholder="Write a feedback comment..." 
-                              className="input-field" 
-                              style={{ flex: 1, margin: 0, padding: '4px 8px', fontSize: '0.75rem', height: '28px' }} 
-                            />
-                            <button type="submit" className="btn-primary" style={{ width: 'auto', padding: '0 15px', fontSize: '0.75rem', height: '28px' }}>
-                              SUBMIT REVIEW
-                            </button>
+                            <input type="text" name="comment" placeholder="Write a feedback comment..." className="input-field" style={{ flex: 1, margin: 0, padding: '4px 8px', fontSize: '0.75rem', height: '28px' }} />
+                            <button type="submit" className="btn-primary" style={{ width: 'auto', padding: '0 15px', fontSize: '0.75rem', height: '28px' }}>SUBMIT REVIEW</button>
                           </div>
                         </form>
                       </div>
@@ -293,7 +284,39 @@ export default async function Dashboard() {
                   </div>
                 )}
 
-                {order.status !== 'COMPLETED' && (
+                {/* Dispute & Confirm Buttons for In-Progress/Pending orders */}
+                {(order.status === 'IN_PROGRESS' || order.status === 'PENDING_COMPLETION') && (
+                  <div style={{ borderTop: '1px solid var(--border-light)', marginTop: '12px', paddingTop: '12px' }}>
+                    {order.status === 'PENDING_COMPLETION' && (
+                      <div style={{ padding: '8px 12px', background: 'rgba(0, 230, 118, 0.1)', border: '1px solid var(--accent)', color: 'var(--accent)', fontSize: '0.8rem', marginBottom: '10px' }} className="font-mono">
+                        Booster marked this complete! Please confirm delivery to release funds, or open a dispute if incomplete. (Funds auto-release after 3 days).
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <button onClick={async () => {
+                        if (confirm('Are you sure you want to dispute this order? Funds will be frozen and Admin will be alerted.')) {
+                          await fetch(`/api/orders/${order.id}/dispute`, { method: 'POST' });
+                          window.location.reload();
+                        }
+                      }} className="btn-primary" style={{ width: 'auto', padding: '6px 12px', fontSize: '0.7rem', background: 'transparent', border: '1px solid var(--accent-secondary)', color: 'var(--accent-secondary)' }}>
+                        DISPUTE ORDER
+                      </button>
+
+                      {order.status === 'PENDING_COMPLETION' && (
+                        <button onClick={async () => {
+                          if (confirm('Release funds to booster and complete job?')) {
+                            await fetch(`/api/orders/${order.id}/confirm`, { method: 'POST' });
+                            window.location.reload();
+                          }
+                        }} className="btn-primary" style={{ width: 'auto', padding: '6px 12px', fontSize: '0.7rem' }}>
+                          CONFIRM DELIVERY
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {order.status === 'OPEN' && (
                   <div style={{ borderTop: '1px solid var(--border-light)', marginTop: '12px', paddingTop: '12px' }}>
                     <h4 className="font-mono" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '8px' }}>RECEIVED BIDS ({order.bids.length})</h4>
                     <OrderBids orderId={order.id} bids={order.bids} currentUsername={user.username} />
