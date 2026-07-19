@@ -31,10 +31,16 @@ export default async function RootLayout({
                   {(session.user as any).role === "OWNER" && (
                     <>
                       <a href="/jobs">Job Board</a>
+                      <a href="/booster">Booster Hub</a>
                       <a href="/owner">Owner Panel</a>
                     </>
                   )}
-                  {(session.user as any).role === "BOOSTER" && <a href="/jobs">Job Board</a>}
+                  {(session.user as any).role === "BOOSTER" && (
+                    <>
+                      <a href="/jobs">Job Board</a>
+                      <a href="/booster">Booster Hub</a>
+                    </>
+                  )}
                   {(session.user as any).role === "USER" && <a href="/verify">Become a Booster</a>}
                   <LogoutButton />
                 </>

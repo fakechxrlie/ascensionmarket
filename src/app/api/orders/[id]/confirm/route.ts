@@ -31,7 +31,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const acceptedBid = order.bids[0];
     if (!acceptedBid) return NextResponse.json({ error: 'No booster assigned.' }, { status: 400 });
 
-    const payout = order.escrowAmount * 0.85; // 15% platform fee
+    const payout = order.escrowAmount * 0.90; // 10% platform fee
 
     // Complete Order Transaction
     await prisma.$transaction([

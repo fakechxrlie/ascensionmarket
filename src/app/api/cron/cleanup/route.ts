@@ -48,7 +48,7 @@ export async function GET(request: Request) {
     for (const po of pendingOrders) {
       const acceptedBid = po.bids[0];
       if (acceptedBid) {
-        const payout = po.escrowAmount * 0.85;
+        const payout = po.escrowAmount * 0.90;
         await prisma.$transaction([
           prisma.user.update({
             where: { id: acceptedBid.boosterId },

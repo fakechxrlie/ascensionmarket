@@ -20,9 +20,12 @@ model User {
   avatarUrl    String?
   ipAddress    String?
   isBanned     Boolean  @default(false)
+  payoutMethod String?  // Crypto, CashApp, PayPal
+  payoutAddress String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userLogs     UserLog[]
+  payoutRequests PayoutRequest[]
   orders       Order[]
   bids         Bid[]
   messages     Message[]
@@ -126,4 +129,16 @@ model UserLog {
   details   String?
   ipAddress String?
   createdAt DateTime @default(now())
+}
+
+model PayoutRequest {
+  id        String   @id @default(cuid())
+  amount    Float
+  method    String
+  address   String
+  status    String   @default("PENDING") // PENDING, PAID, REJECTED
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

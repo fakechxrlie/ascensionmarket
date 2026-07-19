@@ -78,7 +78,7 @@ export default async function OwnerPanel({ searchParams }: { searchParams: Promi
     if (order && order.status === 'DISPUTED') {
       const targetUserId = winner === 'BOOSTER' ? order.bids[0]?.boosterId : order.buyerId;
       if (targetUserId) {
-        const payout = winner === 'BOOSTER' ? order.escrowAmount * 0.85 : order.escrowAmount;
+        const payout = winner === 'BOOSTER' ? order.escrowAmount * 0.90 : order.escrowAmount;
         await prisma.$transaction([
           prisma.user.update({
             where: { id: targetUserId },
@@ -92,6 +92,25 @@ export default async function OwnerPanel({ searchParams }: { searchParams: Promi
         revalidatePath('/owner');
       }
     }
+  }
+
+  async function processPayout(formData: FormData) {
+    "use server";
+    const reqId = formData.get('reqId') as string;
+    const status = formData.get('status') as string;
+    
+    const request = await prisma.payoutRequest.findUnique({ where: { id: reqId } });
+    if (!request || request.status !== 'PENDING') return;
+
+    if (status === 'PAID') {
+      await prisma.payoutRequest.update({ where: { id: reqId }, data: { status: 'PAID' } });
+    } else if (status === 'REJECTED') {
+      await prisma.$transaction([
+        prisma.payoutRequest.update({ where: { id: reqId }, data: { status: 'REJECTED' } }),
+        prisma.user.update({ where: { id: request.userId }, data: { balance: { increment: request.amount } } })
+      ]);
+    }
+    revalidatePath('/owner');
   }
 
   const applications = tab === 'applications' ? await prisma.boosterApplication.findMany({
@@ -115,6 +134,11 @@ export default async function OwnerPanel({ searchParams }: { searchParams: Promi
     orderBy: { createdAt: 'desc' }
   }) : [];
 
+  const payouts = tab === 'payouts' ? await prisma.payoutRequest.findMany({
+    include: { user: true },
+    orderBy: { createdAt: 'desc' }
+  }) : [];
+
   return (
     <main className="container">
       <div style={{ marginTop: '40px', borderBottom: '1px solid var(--border-light)', paddingBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
@@ -132,6 +156,7 @@ export default async function OwnerPanel({ searchParams }: { searchParams: Promi
           <a href="/owner?tab=users" className="font-mono" style={{ padding: '6px 12px', border: `1px solid ${tab === 'users' ? 'var(--brand)' : 'var(--border-light)'}`, color: tab === 'users' ? 'var(--brand)' : 'var(--text-muted)', textDecoration: 'none', background: tab === 'users' ? 'rgba(0, 230, 118, 0.1)' : 'transparent' }}>USERS</a>
           <a href="/owner?tab=orders" className="font-mono" style={{ padding: '6px 12px', border: `1px solid ${tab === 'orders' ? 'var(--brand)' : 'var(--border-light)'}`, color: tab === 'orders' ? 'var(--brand)' : 'var(--text-muted)', textDecoration: 'none', background: tab === 'orders' ? 'rgba(0, 230, 118, 0.1)' : 'transparent' }}>ORDERS</a>
           <a href="/owner?tab=disputes" className="font-mono" style={{ padding: '6px 12px', border: `1px solid ${tab === 'disputes' ? 'var(--brand)' : 'var(--border-light)'}`, color: tab === 'disputes' ? 'var(--brand)' : 'var(--text-muted)', textDecoration: 'none', background: tab === 'disputes' ? 'rgba(0, 230, 118, 0.1)' : 'transparent' }}>DISPUTES</a>
+          <a href="/owner?tab=payouts" className="font-mono" style={{ padding: '6px 12px', border: `1px solid ${tab === 'payouts' ? 'var(--brand)' : 'var(--border-light)'}`, color: tab === 'payouts' ? 'var(--brand)' : 'var(--text-muted)', textDecoration: 'none', background: tab === 'payouts' ? 'rgba(0, 230, 118, 0.1)' : 'transparent' }}>PAYOUTS</a>
         </div>
       </div>
 
@@ -294,6 +319,71 @@ export default async function OwnerPanel({ searchParams }: { searchParams: Promi
         {/* --- DISPUTES TAB --- */}
         {tab === 'disputes' && (
           <OwnerOrdersTab orders={disputes} updateOrderStatus={updateOrderStatus} resolveDispute={resolveDispute} />
+        )}
+
+        {/* --- PAYOUTS TAB --- */}
+        {tab === 'payouts' && (
+          <div>
+            {payouts.length === 0 ? (
+              <p className="font-mono" style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                [NO PAYOUT REQUESTS]
+              </p>
+            ) : (
+              <div style={{ display: 'grid', gap: '15px' }}>
+                {payouts.map(req => (
+                  <div key={req.id} className="panel" style={{ background: 'var(--bg-card)', padding: '20px', border: '1px solid var(--border-light)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px' }}>
+                      <div>
+                        <h3 className="font-mono" style={{ margin: 0, fontSize: '1.2rem', color: 'var(--text-main)' }}>
+                          {req.user.username} <span style={{ color: 'var(--brand)' }}>requested ${req.amount.toFixed(2)}</span>
+                        </h3>
+                        <p className="font-mono" style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '4px' }}>
+                          Requested on {new Date(req.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                      <span className="font-mono" style={{ 
+                        fontSize: '0.75rem', 
+                        padding: '4px 10px', 
+                        border: '1px solid',
+                        borderColor: req.status === 'PAID' ? 'var(--brand)' : req.status === 'REJECTED' ? 'var(--accent-secondary)' : 'var(--accent)',
+                        color: req.status === 'PAID' ? 'var(--brand)' : req.status === 'REJECTED' ? 'var(--accent-secondary)' : 'var(--accent)',
+                        background: req.status === 'PAID' ? 'rgba(0, 230, 118, 0.1)' : req.status === 'REJECTED' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 171, 0, 0.1)'
+                      }}>
+                        {req.status}
+                      </span>
+                    </div>
+
+                    <div style={{ background: 'var(--bg-input)', padding: '15px', border: '1px dashed var(--border-light)', marginBottom: '15px' }}>
+                      <div className="font-mono" style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>PAYOUT METHOD:</div>
+                      <div className="font-mono" style={{ fontSize: '1rem', color: 'var(--text-main)', marginBottom: '10px' }}>{req.method}</div>
+                      
+                      <div className="font-mono" style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>DESTINATION ADDRESS / TAG:</div>
+                      <div className="font-mono" style={{ fontSize: '1rem', color: 'var(--text-main)', wordBreak: 'break-all' }}>{req.address}</div>
+                    </div>
+
+                    {req.status === 'PENDING' && (
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        <form action={processPayout}>
+                          <input type="hidden" name="reqId" value={req.id} />
+                          <input type="hidden" name="status" value="PAID" />
+                          <button type="submit" className="btn-primary" style={{ padding: '8px 20px', width: 'auto' }}>
+                            MARK AS PAID
+                          </button>
+                        </form>
+                        <form action={processPayout}>
+                          <input type="hidden" name="reqId" value={req.id} />
+                          <input type="hidden" name="status" value="REJECTED" />
+                          <button type="submit" className="btn-primary" style={{ padding: '8px 20px', width: 'auto', background: 'transparent', border: '1px solid var(--accent-secondary)', color: 'var(--accent-secondary)' }}>
+                            REJECT & REFUND BALANCE
+                          </button>
+                        </form>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         )}
 
       </div>
