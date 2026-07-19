@@ -7,15 +7,35 @@ export default function OrderBids({ orderId, bids, currentUsername }: any) {
   
   const [statusMsg, setStatusMsg] = useState<{ text: string; isError: boolean } | null>(null);
 
-  const handleAccept = async (bidId: string) => {
+  const [payingBidId, setPayingBidId] = useState<string | null>(null);
+
+  const handleStripeCheckout = async (bidId: string) => {
     setStatusMsg(null);
-    const res = await fetch(`/api/bids/${bidId}/accept`, { method: 'POST' });
+    const res = await fetch(`/api/checkout/stripe`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bidId })
+    });
     const data = await res.json();
-    if (data.success) {
-      setStatusMsg({ text: 'Bid accepted! Funds have been moved to Escrow.', isError: false });
-      setTimeout(() => window.location.reload(), 2000);
+    if (data.url) {
+      window.location.href = data.url;
     } else {
-      setStatusMsg({ text: 'Error accepting bid: ' + data.error, isError: true });
+      setStatusMsg({ text: 'Error starting Stripe checkout: ' + data.error, isError: true });
+    }
+  };
+
+  const handleCryptoCheckout = async (bidId: string) => {
+    setStatusMsg(null);
+    const res = await fetch(`/api/checkout/crypto`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bidId })
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      setStatusMsg({ text: 'Error starting Crypto checkout: ' + data.error, isError: true });
     }
   };
 
@@ -118,7 +138,15 @@ export default function OrderBids({ orderId, bids, currentUsername }: any) {
                       style={{ padding: '4px 10px', fontSize: '0.75rem', width: 'auto', background: activeChatBoosterId === bid.boosterId ? 'var(--bg-card)' : 'transparent', color: 'var(--text-main)', border: '1px solid var(--border-light)' }}>
                       MSG
                     </button>
-                    <button onClick={() => handleAccept(bid.id)} className="btn-primary" style={{ padding: '4px 10px', fontSize: '0.75rem', width: 'auto' }}>ACCEPT</button>
+                    {payingBidId === bid.id ? (
+                      <>
+                        <button onClick={() => handleStripeCheckout(bid.id)} className="btn-primary" style={{ padding: '4px 10px', fontSize: '0.75rem', width: 'auto', background: '#635BFF', borderColor: '#635BFF' }}>STRIPE</button>
+                        <button onClick={() => handleCryptoCheckout(bid.id)} className="btn-primary" style={{ padding: '4px 10px', fontSize: '0.75rem', width: 'auto', background: '#f5a623', borderColor: '#f5a623', color: '#141517' }}>CRYPTO</button>
+                        <button onClick={() => setPayingBidId(null)} className="btn-primary" style={{ padding: '4px 10px', fontSize: '0.75rem', width: 'auto', background: 'transparent', borderColor: 'var(--border-light)', color: 'var(--text-muted)' }}>X</button>
+                      </>
+                    ) : (
+                      <button onClick={() => setPayingBidId(bid.id)} className="btn-primary" style={{ padding: '4px 10px', fontSize: '0.75rem', width: 'auto' }}>ACCEPT</button>
+                    )}
                   </div>
                 </div>
 

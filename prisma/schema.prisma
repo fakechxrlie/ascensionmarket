@@ -95,7 +95,8 @@ model Transaction {
   currency  String   @default("USD")
   status    String   @default("PENDING") // PENDING, COMPLETED, FAILED
   method    String   @default("CRYPTO")
-  invoiceId String?  // NOWPayments Invoice ID
+  invoiceId String?  // NOWPayments Invoice ID or Stripe Session ID
+  bidId     String?  // Links the transaction directly to a Bid
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

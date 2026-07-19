@@ -8,27 +8,40 @@ export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const formData = await req.formData();
-    const amountStr = formData.get('amount') as string;
-    const amount = parseFloat(amountStr);
+    const userId = (session.user as any).id;
+    const body = await req.json();
+    const { bidId } = body;
 
-    // Enforce the NOWPayments minimum transaction limit (typically $2 USD)
-    if (isNaN(amount) || amount < 2) {
-      return NextResponse.json({ error: 'Minimum deposit is $2.00 USD' }, { status: 400 });
+    if (!bidId) {
+      return NextResponse.json({ error: 'Missing bidId' }, { status: 400 });
     }
 
-    // Create a pending transaction
+    const bid = await prisma.bid.findUnique({
+      where: { id: bidId },
+      include: { order: true }
+    });
+
+    if (!bid || bid.order.buyerId !== userId || bid.order.status !== 'OPEN') {
+      return NextResponse.json({ error: 'Invalid bid or order status' }, { status: 400 });
+    }
+
+    // Create a pending transaction linked to the bid
     const transaction = await prisma.transaction.create({
       data: {
-        userId: (session.user as any).id,
-        amount,
+        userId: userId,
+        amount: bid.amount,
         status: 'PENDING',
-        method: 'CRYPTO'
+        method: 'CRYPTO',
+        bidId: bid.id
       }
     });
 
     const apiKey = process.env.NOWPAYMENTS_API_KEY;
-    const siteUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    
+    // Determine absolute URL for success/cancel redirects
+    const host = req.headers.get('host') || 'localhost:3000';
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    const siteUrl = `${protocol}://${host}`;
     
     // Call NOWPayments Invoice API
     const response = await fetch('https://api.nowpayments.io/v1/invoice', {
@@ -38,13 +51,13 @@ export async function POST(req: Request) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        price_amount: amount,
+        price_amount: bid.amount,
         price_currency: 'usd',
         order_id: transaction.id,
-        order_description: `Ascension Wallet Credits ($${amount})`,
-        ipn_callback_url: `${siteUrl}/api/wallet/webhook`,
+        order_description: `Escrow Payment for Boost Order (${bid.order.startRank} -> ${bid.order.targetRank})`,
+        ipn_callback_url: `${siteUrl}/api/webhooks/crypto`,
         success_url: `${siteUrl}/dashboard?payment=success`,
-        cancel_url: `${siteUrl}/wallet?payment=cancel`,
+        cancel_url: `${siteUrl}/dashboard?payment=cancel`,
         // Force the invoice to expire after 1 hour (3600 seconds)
         lifetime: 3600
       })
@@ -63,8 +76,7 @@ export async function POST(req: Request) {
       data: { invoiceId: data.id }
     });
 
-    // Redirect user to NOWPayments hosted invoice checkout page
-    return Response.redirect(data.invoice_url);
+    return NextResponse.json({ url: data.invoice_url });
   } catch (err: any) {
     console.error('Checkout error:', err);
     return NextResponse.json({ error: 'Internal Server Error: ' + err.message }, { status: 500 });

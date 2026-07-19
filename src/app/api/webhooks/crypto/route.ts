@@ -36,17 +36,30 @@ export async function POST(req: Request) {
     }
 
     if (payment_status === 'finished') {
-      // Perform transaction completion & credit user
-      await prisma.$transaction([
-        prisma.transaction.update({
-          where: { id: order_id },
-          data: { status: 'COMPLETED' }
-        }),
-        prisma.user.update({
-          where: { id: transaction.userId },
-          data: { balance: { increment: transaction.amount } }
-        })
-      ]);
+      // It's a Bid checkout. Accept the Bid and move Order to IN_PROGRESS.
+      if (transaction.bidId) {
+        const bid = await prisma.bid.findUnique({
+          where: { id: transaction.bidId },
+          include: { order: true }
+        });
+
+        if (bid && bid.status === 'PENDING') {
+          await prisma.$transaction([
+            prisma.transaction.update({
+              where: { id: transaction.id },
+              data: { status: 'COMPLETED' }
+            }),
+            prisma.bid.update({
+              where: { id: bid.id },
+              data: { status: 'ACCEPTED' }
+            }),
+            prisma.order.update({
+              where: { id: bid.orderId },
+              data: { status: 'IN_PROGRESS', escrowAmount: bid.amount }
+            })
+          ]);
+        }
+      }
     } else if (['failed', 'expired'].includes(payment_status)) {
       await prisma.transaction.update({
         where: { id: order_id },

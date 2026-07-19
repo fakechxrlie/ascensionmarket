@@ -131,14 +131,13 @@ export default async function Dashboard() {
           </p>
         </div>
         
-        {/* Wallet Balance Card */}
-        <div style={{ background: 'var(--bg-card)', padding: '12px 18px', border: '1px solid var(--border-light)', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-          <span className="font-mono" style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>WALLET BALANCE</span>
-          <strong className="font-mono" style={{ fontSize: '1.4rem', color: 'var(--brand)' }}>${user.balance.toFixed(2)}</strong>
-          <a href="/wallet" className="btn-primary" style={{ display: 'inline-block', textAlign: 'center', textDecoration: 'none', padding: '4px 10px', fontSize: '0.75rem', marginTop: '8px', width: 'auto' }}>
-            BUY CREDITS
-          </a>
-        </div>
+        {/* Wallet Balance Card (Only visible for OWNER and BOOSTER) */}
+        {(role === 'OWNER' || role === 'BOOSTER') && (
+          <div style={{ background: 'var(--bg-card)', padding: '12px 18px', border: '1px solid var(--border-light)', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+            <span className="font-mono" style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>PLATFORM EARNINGS</span>
+            <strong className="font-mono" style={{ fontSize: '1.4rem', color: 'var(--brand)' }}>${user.balance.toFixed(2)}</strong>
+          </div>
+        )}
       </div>
 
       {/* Booster Progression & Profile Photo Settings */}
