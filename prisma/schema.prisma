@@ -18,8 +18,11 @@ model User {
   level     Int      @default(1)
   xp        Int      @default(0)
   avatarUrl    String?
+  ipAddress    String?
+  isBanned     Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  userLogs     UserLog[]
   orders       Order[]
   bids         Bid[]
   messages     Message[]
@@ -113,4 +116,14 @@ model Review {
   buyerId    String
   buyer      User     @relation("BuyerReviews", fields: [buyerId], references: [id])
   createdAt  DateTime @default(now())
+}
+
+model UserLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  action    String
+  details   String?
+  ipAddress String?
+  createdAt DateTime @default(now())
 }

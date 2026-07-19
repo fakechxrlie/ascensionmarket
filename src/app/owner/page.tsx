@@ -5,6 +5,8 @@ import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { decrypt } from '@/lib/encryption';
 import React from 'react';
+import OwnerUsersTab from './OwnerUsersTab';
+import OwnerOrdersTab from './OwnerOrdersTab';
 
 export default async function OwnerPanel({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const session = await getServerSession(authOptions);
@@ -42,11 +44,16 @@ export default async function OwnerPanel({ searchParams }: { searchParams: Promi
     revalidatePath('/owner');
   }
 
-  async function updateUserBalance(formData: FormData) {
+  async function toggleUserBan(formData: FormData) {
     "use server";
     const userId = formData.get('userId') as string;
-    const balance = parseFloat(formData.get('balance') as string);
-    await prisma.user.update({ where: { id: userId }, data: { balance } });
+    const isBanned = formData.get('isBanned') === 'true';
+    
+    await prisma.$transaction([
+      prisma.user.update({ where: { id: userId }, data: { isBanned } }),
+      prisma.userLog.create({ data: { userId, action: isBanned ? 'BANNED_BY_ADMIN' : 'UNBANNED_BY_ADMIN' } })
+    ]);
+    
     revalidatePath('/owner');
   }
 
@@ -92,9 +99,18 @@ export default async function OwnerPanel({ searchParams }: { searchParams: Promi
     include: { user: { select: { username: true, email: true } } }
   }) : [];
 
-  const users = tab === 'users' ? await prisma.user.findMany({ orderBy: { createdAt: 'desc' } }) : [];
+  const users = tab === 'users' ? await prisma.user.findMany({ 
+    include: { userLogs: { orderBy: { createdAt: 'desc' } } },
+    orderBy: { createdAt: 'desc' } 
+  }) : [];
   
   const orders = tab === 'orders' ? await prisma.order.findMany({
+    include: { buyer: true, bids: { where: { status: 'ACCEPTED' }, include: { booster: true } } },
+    orderBy: { createdAt: 'desc' }
+  }) : [];
+
+  const disputes = tab === 'disputes' ? await prisma.order.findMany({
+    where: { status: 'DISPUTED' },
     include: { buyer: true, bids: { where: { status: 'ACCEPTED' }, include: { booster: true } } },
     orderBy: { createdAt: 'desc' }
   }) : [];
@@ -115,6 +131,7 @@ export default async function OwnerPanel({ searchParams }: { searchParams: Promi
           <a href="/owner?tab=applications" className="font-mono" style={{ padding: '6px 12px', border: `1px solid ${tab === 'applications' ? 'var(--brand)' : 'var(--border-light)'}`, color: tab === 'applications' ? 'var(--brand)' : 'var(--text-muted)', textDecoration: 'none', background: tab === 'applications' ? 'rgba(0, 230, 118, 0.1)' : 'transparent' }}>APPLICATIONS</a>
           <a href="/owner?tab=users" className="font-mono" style={{ padding: '6px 12px', border: `1px solid ${tab === 'users' ? 'var(--brand)' : 'var(--border-light)'}`, color: tab === 'users' ? 'var(--brand)' : 'var(--text-muted)', textDecoration: 'none', background: tab === 'users' ? 'rgba(0, 230, 118, 0.1)' : 'transparent' }}>USERS</a>
           <a href="/owner?tab=orders" className="font-mono" style={{ padding: '6px 12px', border: `1px solid ${tab === 'orders' ? 'var(--brand)' : 'var(--border-light)'}`, color: tab === 'orders' ? 'var(--brand)' : 'var(--text-muted)', textDecoration: 'none', background: tab === 'orders' ? 'rgba(0, 230, 118, 0.1)' : 'transparent' }}>ORDERS</a>
+          <a href="/owner?tab=disputes" className="font-mono" style={{ padding: '6px 12px', border: `1px solid ${tab === 'disputes' ? 'var(--brand)' : 'var(--border-light)'}`, color: tab === 'disputes' ? 'var(--brand)' : 'var(--text-muted)', textDecoration: 'none', background: tab === 'disputes' ? 'rgba(0, 230, 118, 0.1)' : 'transparent' }}>DISPUTES</a>
         </div>
       </div>
 
@@ -266,82 +283,17 @@ export default async function OwnerPanel({ searchParams }: { searchParams: Promi
 
         {/* --- USERS TAB --- */}
         {tab === 'users' && (
-          <div style={{ display: 'grid', gap: '15px' }}>
-            {users.map(u => (
-              <div key={u.id} className="panel" style={{ background: 'var(--bg-card)', padding: '15px', border: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <h4 className="font-mono" style={{ margin: 0, color: 'var(--text-main)', fontSize: '1rem' }}>{u.username}</h4>
-                  <div className="font-mono" style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '4px' }}>{u.email} | Joined: {u.createdAt.toLocaleDateString()}</div>
-                </div>
-                
-                <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                  <form action={updateUserRole} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <input type="hidden" name="userId" value={u.id} />
-                    <select name="role" defaultValue={u.role} className="input-field" style={{ padding: '4px 8px', margin: 0, fontSize: '0.75rem', height: 'auto' }}>
-                      <option value="USER">USER</option>
-                      <option value="BOOSTER">BOOSTER</option>
-                      <option value="OWNER">OWNER</option>
-                    </select>
-                    <button type="submit" className="btn-primary" style={{ padding: '4px 8px', width: 'auto', fontSize: '0.7rem' }}>SET ROLE</button>
-                  </form>
-                  
-                  <form action={updateUserBalance} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <input type="hidden" name="userId" value={u.id} />
-                    <input type="number" step="0.01" name="balance" defaultValue={u.balance} className="input-field" style={{ padding: '4px 8px', margin: 0, width: '80px', fontSize: '0.75rem', height: 'auto' }} />
-                    <button type="submit" className="btn-primary" style={{ padding: '4px 8px', width: 'auto', fontSize: '0.7rem', background: 'transparent', border: '1px solid var(--brand)', color: 'var(--brand)' }}>SET BAL</button>
-                  </form>
-                </div>
-              </div>
-            ))}
-          </div>
+          <OwnerUsersTab users={users} updateUserRole={updateUserRole} toggleUserBan={toggleUserBan} />
         )}
 
         {/* --- ORDERS TAB --- */}
         {tab === 'orders' && (
-          <div style={{ display: 'grid', gap: '15px' }}>
-            {orders.map(o => (
-              <div key={o.id} className="panel" style={{ background: 'var(--bg-card)', padding: '15px', border: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <h4 className="font-mono" style={{ margin: 0, color: 'var(--brand)', fontSize: '1rem' }}>{o.game} - {o.startRank} to {o.targetRank}</h4>
-                  <div className="font-mono" style={{ color: 'var(--text-main)', fontSize: '0.8rem', marginTop: '4px' }}>
-                    Buyer: {o.buyer.username} | Booster: {o.bids[0]?.booster?.username || 'None'} | Escrow: ${o.escrowAmount.toFixed(2)}
-                  </div>
-                  <div className="font-mono" style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '4px' }}>
-                    Created: {o.createdAt.toLocaleDateString()}
-                  </div>
-                </div>
-                <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
-                  <form action={updateOrderStatus} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <input type="hidden" name="orderId" value={o.id} />
-                    <select name="status" defaultValue={o.status} className="input-field" style={{ padding: '4px 8px', margin: 0, fontSize: '0.75rem', height: 'auto' }}>
-                      <option value="OPEN">OPEN</option>
-                      <option value="IN_PROGRESS">IN_PROGRESS</option>
-                      <option value="PENDING_COMPLETION">PENDING_COMPLETION</option>
-                      <option value="DISPUTED">DISPUTED</option>
-                      <option value="COMPLETED">COMPLETED</option>
-                      <option value="CANCELLED">CANCELLED</option>
-                    </select>
-                    <button type="submit" className="btn-primary" style={{ padding: '4px 8px', width: 'auto', fontSize: '0.7rem' }}>UPDATE</button>
-                  </form>
-                  
-                  {o.status === 'DISPUTED' && (
-                    <div style={{ display: 'flex', gap: '5px', borderLeft: '1px solid var(--border-light)', paddingLeft: '10px' }}>
-                      <form action={resolveDispute}>
-                        <input type="hidden" name="orderId" value={o.id} />
-                        <input type="hidden" name="winner" value="BUYER" />
-                        <button type="submit" className="btn-primary" style={{ background: 'var(--accent-secondary)', color: '#141517', padding: '4px 8px', fontSize: '0.7rem', width: 'auto' }}>REFUND BUYER</button>
-                      </form>
-                      <form action={resolveDispute}>
-                        <input type="hidden" name="orderId" value={o.id} />
-                        <input type="hidden" name="winner" value="BOOSTER" />
-                        <button type="submit" className="btn-primary" style={{ background: 'var(--accent)', color: '#141517', padding: '4px 8px', fontSize: '0.7rem', width: 'auto' }}>PAY BOOSTER</button>
-                      </form>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+          <OwnerOrdersTab orders={orders} updateOrderStatus={updateOrderStatus} resolveDispute={resolveDispute} />
+        )}
+
+        {/* --- DISPUTES TAB --- */}
+        {tab === 'disputes' && (
+          <OwnerOrdersTab orders={disputes} updateOrderStatus={updateOrderStatus} resolveDispute={resolveDispute} />
         )}
 
       </div>

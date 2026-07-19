@@ -19,10 +19,18 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user) return null;
+        if (user.isBanned) throw new Error("Account is banned");
 
         const passwordsMatch = await bcrypt.compare(credentials.password, user.password);
 
         if (!passwordsMatch) return null;
+
+        const ipAddress = (req as any).headers?.['x-forwarded-for'] || 'Unknown IP';
+        
+        await prisma.$transaction([
+          prisma.user.update({ where: { id: user.id }, data: { ipAddress } }),
+          prisma.userLog.create({ data: { userId: user.id, action: 'LOGIN', ipAddress } })
+        ]);
 
         return { id: user.id, email: user.email, name: user.username, role: user.role };
       }
