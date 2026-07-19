@@ -33,7 +33,7 @@ export default async function RootLayout({
               ) : (
                 <>
                   <a href="/login">Login</a>
-                  <a href="/verify" className="btn-login">Submit KYC Application</a>
+                  <a href="/verify" className="btn-login">Become a Booster</a>
                 </>
               )}
             </div>

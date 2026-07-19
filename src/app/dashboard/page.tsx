@@ -194,7 +194,7 @@ export default async function Dashboard() {
         <div style={{ marginTop: '20px' }}>
           <a href="/verify" style={{ textDecoration: 'none' }}>
             <button className="btn-primary" style={{ width: 'auto', padding: '8px 16px', fontSize: '0.8rem' }}>
-              BECOME A BOOSTER (KYC VERIFICATION REQUIRED)
+              BECOME A BOOSTER
             </button>
           </a>
         </div>
