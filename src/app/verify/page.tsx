@@ -157,7 +157,7 @@ export default function Verify() {
               {/* Doc 2 */}
               <div>
                 <label className="font-mono" style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
-                  2. A high-resolution photo of only the front of your ID in front of your dashboard and username so it's proof it's there:
+                  2. A high-resolution photo of the front of your ID in front of your dashboard showing your username:
                 </label>
                 <div style={{ border: '1px dashed var(--border-light)', padding: '16px', background: 'var(--bg-card)', cursor: 'pointer', textAlign: 'center', position: 'relative' }}>
                   <span className="font-mono" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
