@@ -22,9 +22,9 @@ export default async function WalletStore() {
   const packages = [
     { name: 'Starter Pack', amount: 5, credits: '5.00', price: '$5.00', desc: 'Perfect for quick tests and micro transactions.' },
     { name: 'Bronze Pack', amount: 10, credits: '10.00', price: '$10.00', desc: 'Great for standard boosting options.' },
-    { name: 'Silver Pack', amount: 50, credits: '50.00', price: '$50.00', desc: 'Ideal for division promotions.' },
-    { name: 'Gold Pack', amount: 100, credits: '100.00', price: '$100.00', desc: 'Best value for high-tier queue boosts.' },
-    { name: 'Platinum Pack', amount: 250, credits: '250.00', price: '$250.00', desc: 'Ultimate package for massive boosts.' }
+    { name: 'Silver Pack', amount: 25, credits: '25.00', price: '$25.00', desc: 'Ideal for minor rank promotions.' },
+    { name: 'Gold Pack', amount: 50, credits: '50.00', price: '$50.00', desc: 'Ideal for division promotions.' },
+    { name: 'Platinum Pack', amount: 100, credits: '100.00', price: '$100.00', desc: 'Best value for high-tier queue boosts.' }
   ];
 
   return (
