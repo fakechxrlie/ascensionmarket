@@ -59,6 +59,20 @@ const GAME_DATA: Record<string, any> = {
       { name: 'Grand Champion', divisions: ['I', 'II', 'III', 'IV'] },
       { name: 'Supersonic Legend', divisions: [] }
     ]
+  },
+  fortnite: {
+    name: 'Fortnite',
+    pointsName: 'Points',
+    ranks: [
+      { name: 'Bronze', divisions: ['I', 'II', 'III'] },
+      { name: 'Silver', divisions: ['I', 'II', 'III'] },
+      { name: 'Gold', divisions: ['I', 'II', 'III'] },
+      { name: 'Platinum', divisions: ['I', 'II', 'III'] },
+      { name: 'Diamond', divisions: ['I', 'II', 'III'] },
+      { name: 'Elite', divisions: [] },
+      { name: 'Champion', divisions: [] },
+      { name: 'Unreal', divisions: [] }
+    ]
   }
 };
 
@@ -74,10 +88,15 @@ export default function GameMarket({ params }: { params: Promise<{ game: string 
   const [endDiv, setEndDiv] = useState(game.ranks[game.ranks.length - 1].divisions?.[0] || '');
   const [endPts, setEndPts] = useState('');
 
+  const [platform, setPlatform] = useState('PC');
+  const [badgeOnly, setBadgeOnly] = useState(false);
+  const [selectedBadges, setSelectedBadges] = useState('');
+
   const [options, setOptions] = useState({
     stream: false,
     priority: false,
-    duo: false
+    duo: false,
+    offline: false
   });
 
   const handleStartRankChange = (val: string) => {
@@ -110,9 +129,17 @@ export default function GameMarket({ params }: { params: Promise<{ game: string 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           game: game.name,
-          startRank, startDiv, startPts,
-          targetRank: endRank, targetDiv: endDiv, targetPts: endPts,
-          options: Object.keys(options).filter(k => options[k as keyof typeof options])
+          startRank: badgeOnly ? 'Badges' : startRank, 
+          startDiv: badgeOnly ? '' : startDiv, 
+          startPts: badgeOnly ? '' : startPts,
+          targetRank: badgeOnly ? 'Boost' : endRank, 
+          targetDiv: badgeOnly ? '' : endDiv, 
+          targetPts: badgeOnly ? '' : endPts,
+          options: [
+            ...Object.keys(options).filter(k => options[k as keyof typeof options]),
+            `Platform: ${platform}`,
+            ...(badgeOnly ? ['BADGE BOOST', `Badges: ${selectedBadges}`] : [])
+          ]
         })
       });
       
@@ -142,7 +169,34 @@ export default function GameMarket({ params }: { params: Promise<{ game: string 
 
       <div className="calc-container">
         <div className="calc-panel" style={{ border: '1px solid var(--border-light)', background: 'var(--bg-card)' }}>
-          <div className="rank-row">
+          <div style={{ display: 'flex', gap: '15px', marginBottom: '20px', flexWrap: 'wrap' }}>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label className="font-mono">Platform</label>
+              <select value={platform} onChange={e => setPlatform(e.target.value)} className="input-field" style={{ height: '38px', padding: '0 10px' }}>
+                <option value="PC">PC</option>
+                <option value="PlayStation">PlayStation</option>
+                <option value="Xbox">Xbox</option>
+                <option value="Nintendo Switch">Nintendo Switch</option>
+                <option value="Mobile">Mobile</option>
+              </select>
+            </div>
+            {gameKey === 'apex' && (
+              <div className="form-group" style={{ flex: 1, display: 'flex', alignItems: 'center', marginTop: '20px' }}>
+                <label className="font-mono" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
+                  <input type="checkbox" checked={badgeOnly} onChange={e => setBadgeOnly(e.target.checked)} />
+                  Badge Boost Only
+                </label>
+              </div>
+            )}
+          </div>
+
+          {badgeOnly ? (
+            <div className="form-group" style={{ marginBottom: '20px' }}>
+              <label className="font-mono">Which badges / legends? (e.g. 20 Bomb Wraith, 4k Damage)</label>
+              <input type="text" className="input-field" value={selectedBadges} onChange={e => setSelectedBadges(e.target.value)} placeholder="Enter details..." />
+            </div>
+          ) : (
+            <div className="rank-row">
             <div className="rank-box">
               <h3>Current Rank</h3>
               <div className="form-group">
@@ -198,7 +252,8 @@ export default function GameMarket({ params }: { params: Promise<{ game: string 
                 <input type="text" className="input-field" placeholder={`e.g., 0`} value={endPts} onChange={(e) => setEndPts(e.target.value)} />
               </div>
             </div>
-          </div>
+            </div>
+          )}
 
           <hr style={{ borderColor: 'var(--border-light)', margin: '20px 0' }} />
           
@@ -224,6 +279,13 @@ export default function GameMarket({ params }: { params: Promise<{ game: string 
               className={`option-btn ${options.duo ? 'active' : ''}`}
             >
               DUO QUEUE
+            </button>
+            <button 
+              type="button" 
+              onClick={() => setOptions({...options, offline: !options.offline})}
+              className={`option-btn ${options.offline ? 'active' : ''}`}
+            >
+              OFFLINE / INVISIBLE
             </button>
           </div>
         </div>

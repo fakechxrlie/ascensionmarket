@@ -18,7 +18,7 @@ export default function Verify() {
   const [doc1, setDoc1] = useState('');
   const [doc2, setDoc2] = useState('');
   
-  const allAvailableGames = ['Valorant', 'Apex Legends', 'Rainbow 6 Siege', 'Rocket League'];
+  const allAvailableGames = ['Valorant', 'Apex Legends', 'Rainbow 6 Siege', 'Rocket League', 'Fortnite'];
   
   const [selectedGames, setSelectedGames] = useState<string[]>([]);
   const [gameUsernames, setGameUsernames] = useState<Record<string, string>>({});

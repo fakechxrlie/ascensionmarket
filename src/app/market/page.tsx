@@ -5,7 +5,8 @@ export default function MarketSelect() {
     { id: 'apex', name: 'Apex Legends', image: '/assets/apex_bg.png', color: '#ef4444' },
     { id: 'valorant', name: 'Valorant', image: '/assets/valorant_bg.png', color: '#f43f5e' },
     { id: 'r6', name: 'Rainbow 6 Siege', image: '/assets/r6_bg.png', color: '#eab308' },
-    { id: 'rl', name: 'Rocket League', image: '/assets/rl_bg.png', color: '#3b82f6' }
+    { id: 'rl', name: 'Rocket League', image: '/assets/rl_bg.png', color: '#3b82f6' },
+    { id: 'fortnite', name: 'Fortnite', image: '/assets/fn_bg.png', color: '#8b5cf6' }
   ];
 
   return (

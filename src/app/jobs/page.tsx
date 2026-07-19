@@ -193,7 +193,7 @@ export default function JobBoard() {
                       {options.length > 0 ? (
                         <div style={{ display: 'flex', gap: '6px' }}>
                           {options.map((opt: string) => (
-                            <span key={opt} className="font-mono" style={{ padding: '2px 8px', background: 'var(--bg-input)', border: '1px solid var(--border-light)', fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--brand)' }}>{opt}</span>
+                            <span key={opt} className="font-mono" style={{ padding: '4px 10px', background: 'var(--brand)', border: '1px solid var(--brand)', fontSize: '0.8rem', textTransform: 'uppercase', color: '#141517', fontWeight: 800, borderRadius: '2px', boxShadow: '0 0 5px rgba(0, 230, 118, 0.3)' }}>{opt}</span>
                           ))}
                         </div>
                       ) : (

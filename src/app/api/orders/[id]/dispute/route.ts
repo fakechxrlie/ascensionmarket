@@ -10,6 +10,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     if (!session || !session.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const p = await params;
+    const body = await req.json().catch(() => ({}));
+    const reason = body.reason || 'No reason provided';
     
     // Find the order
     const order = await prisma.order.findUnique({
@@ -45,7 +47,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       color: 0xFF0000, // Red
       fields: [
         { name: 'Game', value: order.game, inline: true },
-        { name: 'Escrow Amount', value: `$${order.escrowAmount.toFixed(2)}`, inline: true }
+        { name: 'Escrow Amount', value: `$${order.escrowAmount.toFixed(2)}`, inline: true },
+        { name: 'Reason', value: reason, inline: false }
       ]
     });
 

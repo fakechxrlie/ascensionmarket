@@ -11,7 +11,6 @@ export default function CredentialVault({ orderId, isBuyer, initialCredentials }
   const [platform, setPlatform] = useState('PC');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [twoFactor, setTwoFactor] = useState('');
   
   const [revealed, setRevealed] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -24,7 +23,6 @@ export default function CredentialVault({ orderId, isBuyer, initialCredentials }
         setPlatform(parsed.platform || 'PC');
         setUsername(parsed.username || '');
         setPassword(parsed.password || '');
-        setTwoFactor(parsed.twoFactor || '');
       } catch (e) {
         console.error('Failed to parse credentials', e);
       }
@@ -36,7 +34,7 @@ export default function CredentialVault({ orderId, isBuyer, initialCredentials }
     setLoading(true);
     setMessage(null);
 
-    const credsJson = JSON.stringify({ platform, username, password, twoFactor });
+    const credsJson = JSON.stringify({ platform, username, password });
 
     try {
       const res = await fetch(`/api/orders/${orderId}/credentials`, {
@@ -75,7 +73,6 @@ export default function CredentialVault({ orderId, isBuyer, initialCredentials }
             <div>PLATFORM: <strong style={{ color: 'var(--text-main)' }}>{platform}</strong></div>
             <div>USERNAME: <strong style={{ color: 'var(--text-main)' }}>{username}</strong></div>
             <div>PASSWORD: <strong style={{ color: 'var(--text-main)' }}>{password}</strong></div>
-            {twoFactor && <div>2FA BACKUPS: <strong style={{ color: 'var(--text-main)' }}>{twoFactor}</strong></div>}
             <button 
               onClick={() => setRevealed(false)} 
               className="btn-primary" 
@@ -105,7 +102,7 @@ export default function CredentialVault({ orderId, isBuyer, initialCredentials }
     <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', padding: '18px' }} className="font-mono">
       <h4 style={{ margin: '0 0 10px 0', fontSize: '0.85rem', color: 'var(--brand)' }}>🔒 SECURE CREDENTIALS VAULT</h4>
       <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '15px' }}>
-        Provide your game account login below. This information is shared *only* with your assigned booster and admin.
+        Provide your game account login below. This information is shared *only* with your assigned booster.
       </p>
 
       {message && (
@@ -160,18 +157,6 @@ export default function CredentialVault({ orderId, isBuyer, initialCredentials }
             onChange={e => setPassword(e.target.value)} 
             required
             placeholder="Account Password" 
-            className="input-field" 
-            style={{ height: '32px', margin: '4px 0 0 0', padding: '6px 10px', fontSize: '0.8rem' }}
-          />
-        </div>
-
-        <div>
-          <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>2FA BACKUP CODES / EXTRA DETAILS (RECOMMENDED)</label>
-          <input 
-            type="text" 
-            value={twoFactor} 
-            onChange={e => setTwoFactor(e.target.value)} 
-            placeholder="Backup codes (steam/epic/etc.) or character name" 
             className="input-field" 
             style={{ height: '32px', margin: '4px 0 0 0', padding: '6px 10px', fontSize: '0.8rem' }}
           />

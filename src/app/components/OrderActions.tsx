@@ -5,14 +5,24 @@ export default function OrderActions({ orderId, status }: { orderId: string, sta
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [showDisputeModal, setShowDisputeModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [disputeReason, setDisputeReason] = useState('');
+
   const handleDispute = async () => {
-    if (!confirm('Are you sure you want to dispute this order? Funds will be frozen and Admin will be alerted.')) {
+    if (!disputeReason.trim()) {
+      setError('Please provide a reason for the dispute.');
       return;
     }
+    setShowDisputeModal(false);
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/orders/${orderId}/dispute`, { method: 'POST' });
+      const res = await fetch(`/api/orders/${orderId}/dispute`, { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: disputeReason })
+      });
       if (res.ok) {
         window.location.reload();
       } else {
@@ -27,9 +37,7 @@ export default function OrderActions({ orderId, status }: { orderId: string, sta
   };
 
   const handleConfirm = async () => {
-    if (!confirm('Release funds to booster and complete job?')) {
-      return;
-    }
+    setShowConfirmModal(false);
     setLoading(true);
     setError(null);
     try {
@@ -56,7 +64,7 @@ export default function OrderActions({ orderId, status }: { orderId: string, sta
       )}
       <div style={{ display: 'flex', gap: '10px' }}>
         <button 
-          onClick={handleDispute} 
+          onClick={() => setShowDisputeModal(true)} 
           disabled={loading}
           className="btn-primary" 
           style={{ width: 'auto', padding: '6px 12px', fontSize: '0.7rem', background: 'transparent', border: '1px solid var(--accent-secondary)', color: 'var(--accent-secondary)' }}
@@ -66,7 +74,7 @@ export default function OrderActions({ orderId, status }: { orderId: string, sta
 
         {status === 'PENDING_COMPLETION' && (
           <button 
-            onClick={handleConfirm} 
+            onClick={() => setShowConfirmModal(true)} 
             disabled={loading}
             className="btn-primary" 
             style={{ width: 'auto', padding: '6px 12px', fontSize: '0.7rem' }}
@@ -75,6 +83,39 @@ export default function OrderActions({ orderId, status }: { orderId: string, sta
           </button>
         )}
       </div>
+
+      {showDisputeModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+          <div style={{ background: 'var(--bg-card)', padding: '20px', border: '1px solid var(--border-light)', width: '400px', maxWidth: '90%' }}>
+            <h3 className="font-mono" style={{ color: 'var(--accent-secondary)', marginTop: 0 }}>// DISPUTE ORDER</h3>
+            <p className="font-mono" style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Are you sure you want to dispute this order? Funds will be frozen and Admin will be alerted.</p>
+            <textarea 
+              value={disputeReason}
+              onChange={e => setDisputeReason(e.target.value)}
+              placeholder="Please provide details about the dispute..."
+              className="input-field"
+              style={{ width: '100%', height: '80px', marginTop: '10px', resize: 'none', padding: '10px' }}
+            />
+            <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+              <button className="btn-primary" onClick={handleDispute} style={{ background: 'var(--accent-secondary)', color: '#fff', borderColor: 'var(--accent-secondary)' }}>SUBMIT DISPUTE</button>
+              <button className="btn-primary" onClick={() => setShowDisputeModal(false)} style={{ background: 'transparent', color: 'var(--text-main)', borderColor: 'var(--border-light)' }}>CANCEL</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showConfirmModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+          <div style={{ background: 'var(--bg-card)', padding: '20px', border: '1px solid var(--border-light)', width: '400px', maxWidth: '90%' }}>
+            <h3 className="font-mono" style={{ color: 'var(--brand)', marginTop: 0 }}>// CONFIRM DELIVERY</h3>
+            <p className="font-mono" style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Are you sure you want to release funds to the booster and complete the job?</p>
+            <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+              <button className="btn-primary" onClick={handleConfirm}>YES, RELEASE FUNDS</button>
+              <button className="btn-primary" onClick={() => setShowConfirmModal(false)} style={{ background: 'transparent', color: 'var(--text-main)', borderColor: 'var(--border-light)' }}>CANCEL</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
