@@ -6,13 +6,14 @@ import { revalidatePath } from 'next/cache';
 import { decrypt } from '@/lib/encryption';
 import React from 'react';
 
-export default async function OwnerPanel({ searchParams }: { searchParams: { tab?: string } }) {
+export default async function OwnerPanel({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session || (session.user as any).role !== 'OWNER') {
     redirect('/dashboard');
   }
 
-  const tab = searchParams.tab || 'applications';
+  const sParams = await searchParams;
+  const tab = sParams.tab || 'applications';
 
   async function reviewApplication(formData: FormData) {
     "use server";

@@ -43,7 +43,7 @@ export async function GET(req: Request) {
 
     const role = (session.user as any).role;
     
-    if (role === 'BOOSTER' || role === 'ADMIN') {
+    if (role === 'BOOSTER' || role === 'OWNER') {
       const session = await getServerSession(authOptions);
       const userId = session?.user ? (session.user as any).id : null;
 
