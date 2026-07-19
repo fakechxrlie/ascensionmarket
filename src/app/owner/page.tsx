@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { decrypt } from '@/lib/encryption';
+import React from 'react';
 
 export default async function OwnerPanel() {
   const session = await getServerSession(authOptions);
@@ -62,6 +63,27 @@ export default async function OwnerPanel() {
                 kycParsed = { doc1: decryptedKyc, doc2: 'N/A' };
               }
 
+              let gameUsernamesObj: Record<string, string> = {};
+              try {
+                gameUsernamesObj = JSON.parse(decrypt(app.gameUsernames));
+              } catch (e) {
+                gameUsernamesObj = { 'Primary': decrypt(app.gameUsernames) };
+              }
+
+              let skillProofsObj: Record<string, string> = {};
+              try {
+                skillProofsObj = JSON.parse(decrypt(app.skillProof));
+              } catch (e) {
+                skillProofsObj = { 'Legacy Proof': decrypt(app.skillProof) };
+              }
+
+              let gamesArr: string[] = [];
+              try {
+                gamesArr = JSON.parse(app.games);
+              } catch (e) {
+                gamesArr = [app.games];
+              }
+
               return (
                 <div key={app.id} className="panel" style={{ background: 'var(--bg-card)', padding: '20px', border: '1px solid var(--border-light)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-light)', paddingBottom: '10px', marginBottom: '15px' }}>
@@ -73,20 +95,63 @@ export default async function OwnerPanel() {
                     </span>
                   </div>
                   
-                  <div style={{ padding: '12px', background: 'var(--bg-input)', border: '1px solid var(--border-light)', color: 'var(--text-muted)', display: 'grid', gridTemplateColumns: '1fr', gap: '10px', fontSize: '0.85rem' }}>
-                    <div><strong style={{ color: 'var(--text-main)' }} className="font-mono">GAMES:</strong> {JSON.parse(app.games).join(', ')}</div>
-                    <div><strong style={{ color: 'var(--text-main)' }} className="font-mono">GAME USERNAMES:</strong> {Object.values(JSON.parse(decrypt(app.gameUsernames))).join(', ')}</div>
-                    <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '10px', marginTop: '5px' }}>
-                      <strong style={{ color: 'var(--text-main)' }} className="font-mono">DOCUMENT 1 (ID next to face):</strong>
-                      <div className="font-mono" style={{ wordBreak: 'break-all', marginTop: '4px', color: 'var(--brand)' }}>{kycParsed.doc1}</div>
-                    </div>
+                  <div style={{ padding: '12px', background: 'var(--bg-input)', border: '1px solid var(--border-light)', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '15px', fontSize: '0.85rem' }}>
                     <div>
-                      <strong style={{ color: 'var(--text-main)' }} className="font-mono">DOCUMENT 2 (Front of ID):</strong>
-                      <div className="font-mono" style={{ wordBreak: 'break-all', marginTop: '4px', color: 'var(--brand)' }}>{kycParsed.doc2}</div>
+                      <strong style={{ color: 'var(--text-main)' }} className="font-mono">APPLIED GAMES:</strong> {gamesArr.join(', ')}
                     </div>
-                    <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '10px', marginTop: '5px' }}>
-                      <strong style={{ color: 'var(--text-main)' }} className="font-mono">RANK SCREENSHOT REFERRAL:</strong> 
-                      <div className="font-mono" style={{ wordBreak: 'break-all', marginTop: '4px', color: 'var(--brand)' }}>{decrypt(app.skillProof)}</div>
+                    
+                    <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '10px' }}>
+                      <strong style={{ color: 'var(--text-main)' }} className="font-mono">ACCOUNTS & SCREENSHOTS:</strong>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '8px' }}>
+                        {gamesArr.map(g => {
+                          const username = gameUsernamesObj[g] || 'N/A';
+                          const proof = skillProofsObj[g];
+                          const isBase64Proof = proof?.startsWith('data:image/');
+
+                          return (
+                            <div key={g} style={{ background: 'var(--bg-card)', padding: '10px', border: '1px solid var(--border-light)' }}>
+                              <div className="font-mono" style={{ color: 'var(--brand)', fontWeight: 600 }}>{g.toUpperCase()}</div>
+                              <div style={{ marginTop: '4px' }}>Username: <strong>{username}</strong></div>
+                              {proof && (
+                                <div style={{ marginTop: '8px' }}>
+                                  <div>Rank Proof:</div>
+                                  {isBase64Proof ? (
+                                    <a href={proof} target="_blank" rel="noopener noreferrer">
+                                      <img src={proof} alt={`${g} Proof`} style={{ maxWidth: '100%', maxHeight: '120px', objectFit: 'contain', border: '1px solid var(--border-light)', cursor: 'pointer', marginTop: '4px' }} />
+                                    </a>
+                                  ) : (
+                                    <span style={{ wordBreak: 'break-all', color: 'var(--brand)' }}>{proof}</span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '10px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                      <div>
+                        <strong style={{ color: 'var(--text-main)' }} className="font-mono">DOCUMENT 1 (Face + ID):</strong>
+                        {kycParsed.doc1.startsWith('data:image/') ? (
+                          <a href={kycParsed.doc1} target="_blank" rel="noopener noreferrer">
+                            <img src={kycParsed.doc1} alt="Doc 1" style={{ maxWidth: '100%', maxHeight: '180px', objectFit: 'contain', border: '1px solid var(--border-light)', marginTop: '6px' }} />
+                          </a>
+                        ) : (
+                          <div className="font-mono" style={{ wordBreak: 'break-all', marginTop: '4px', color: 'var(--brand)' }}>{kycParsed.doc1}</div>
+                        )}
+                      </div>
+
+                      <div>
+                        <strong style={{ color: 'var(--text-main)' }} className="font-mono">DOCUMENT 2 (ID Front Only):</strong>
+                        {kycParsed.doc2.startsWith('data:image/') ? (
+                          <a href={kycParsed.doc2} target="_blank" rel="noopener noreferrer">
+                            <img src={kycParsed.doc2} alt="Doc 2" style={{ maxWidth: '100%', maxHeight: '180px', objectFit: 'contain', border: '1px solid var(--border-light)', marginTop: '6px' }} />
+                          </a>
+                        ) : (
+                          <div className="font-mono" style={{ wordBreak: 'break-all', marginTop: '4px', color: 'var(--brand)' }}>{kycParsed.doc2}</div>
+                        )}
+                      </div>
                     </div>
                   </div>
 
