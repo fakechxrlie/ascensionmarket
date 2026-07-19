@@ -6,6 +6,7 @@ import CustomSelect from '../../components/CustomSelect';
 const GAME_DATA: Record<string, any> = {
   valorant: {
     name: 'Valorant',
+    platforms: ['PC', 'PlayStation', 'Xbox'],
     pointsName: 'RR',
     ranks: [
       { name: 'Iron', divisions: ['1', '2', '3'] },
@@ -21,6 +22,7 @@ const GAME_DATA: Record<string, any> = {
   },
   apex: {
     name: 'Apex Legends',
+    platforms: ['PC', 'PlayStation', 'Xbox', 'Nintendo Switch'],
     pointsName: 'RP',
     ranks: [
       { name: 'Bronze', divisions: ['IV', 'III', 'II', 'I'] },
@@ -34,6 +36,7 @@ const GAME_DATA: Record<string, any> = {
   },
   r6: {
     name: 'Rainbow 6 Siege',
+    platforms: ['PC', 'PlayStation', 'Xbox'],
     pointsName: 'RP',
     ranks: [
       { name: 'Copper', divisions: ['V', 'IV', 'III', 'II', 'I'] },
@@ -48,6 +51,7 @@ const GAME_DATA: Record<string, any> = {
   },
   rl: {
     name: 'Rocket League',
+    platforms: ['PC', 'PlayStation', 'Xbox', 'Nintendo Switch'],
     pointsName: 'MMR',
     ranks: [
       { name: 'Bronze', divisions: ['I', 'II', 'III', 'IV'] },
@@ -62,6 +66,7 @@ const GAME_DATA: Record<string, any> = {
   },
   fortnite: {
     name: 'Fortnite',
+    platforms: ['PC', 'PlayStation', 'Xbox', 'Nintendo Switch', 'Mobile'],
     pointsName: 'Points',
     ranks: [
       { name: 'Bronze', divisions: ['I', 'II', 'III'] },
@@ -89,9 +94,10 @@ export default function GameMarket({ params }: { params: Promise<{ game: string 
   const [endDiv, setEndDiv] = useState(game.ranks[game.ranks.length - 1].divisions?.[0] || '');
   const [endPts, setEndPts] = useState('');
 
-  const [platform, setPlatform] = useState('PC');
+  const [platform, setPlatform] = useState(game.platforms ? game.platforms[0] : 'PC');
   const [badgeOnly, setBadgeOnly] = useState(false);
   const [selectedBadges, setSelectedBadges] = useState('');
+  const [extraDetails, setExtraDetails] = useState('');
 
   const [options, setOptions] = useState({
     stream: false,
@@ -139,7 +145,8 @@ export default function GameMarket({ params }: { params: Promise<{ game: string 
           options: [
             ...Object.keys(options).filter(k => options[k as keyof typeof options]),
             `Platform: ${platform}`,
-            ...(badgeOnly ? ['BADGE BOOST', `Badges: ${selectedBadges}`] : [])
+            ...(badgeOnly ? ['BADGE BOOST', `Badges: ${selectedBadges}`] : []),
+            ...(extraDetails.trim() ? [`Extra Details: ${extraDetails}`] : [])
           ]
         })
       });
@@ -176,7 +183,7 @@ export default function GameMarket({ params }: { params: Promise<{ game: string 
               <CustomSelect 
                 value={platform} 
                 onChange={(val) => setPlatform(val)} 
-                options={['PC', 'PlayStation', 'Xbox', 'Nintendo Switch', 'Mobile']} 
+                options={game.platforms || ['PC', 'PlayStation', 'Xbox']} 
               />
             </div>
             {gameKey === 'apex' && (
@@ -292,6 +299,17 @@ export default function GameMarket({ params }: { params: Promise<{ game: string 
             >
               OFFLINE / INVISIBLE
             </button>
+          </div>
+          
+          <div className="form-group" style={{ marginTop: '25px' }}>
+            <label className="font-mono">Extra Details / Special Requests (Optional)</label>
+            <textarea 
+              className="input-field" 
+              value={extraDetails} 
+              onChange={e => setExtraDetails(e.target.value)} 
+              placeholder="Any specific legends to play, time restrictions, etc."
+              style={{ width: '100%', height: '80px', resize: 'none', padding: '10px' }}
+            />
           </div>
         </div>
 

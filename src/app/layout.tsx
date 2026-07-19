@@ -6,7 +6,7 @@ import { authOptions } from "@/lib/auth";
 import LogoutButton from "./components/LogoutButton";
 
 export const metadata: Metadata = {
-  title: "Ascension - Premium Compliance Boosting",
+  title: "Ascension Boosting",
   description: "Automated game boosting dashboard with active escrow routing.",
 };
 
@@ -22,7 +22,7 @@ export default async function RootLayout({
       <body>
         <AuthProvider>
           <nav className="navbar">
-            <a href="/" className="logo">// ASCENSION</a>
+            <a href="/" className="logo" style={{ fontFamily: 'system-ui, sans-serif', letterSpacing: 'normal' }}>// Ascension</a>
             <div className="nav-links">
               <a href="/market">Marketplace</a>
               {session ? (
