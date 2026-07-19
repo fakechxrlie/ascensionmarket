@@ -8,6 +8,7 @@ export default function JobBoard() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [filterGame, setFilterGame] = useState('ALL');
   
   // Expanded card tracking
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
@@ -137,13 +138,34 @@ export default function JobBoard() {
         </div>
       )}
 
+      <div style={{ display: 'flex', gap: '10px', marginTop: '20px', flexWrap: 'wrap' }}>
+        {['ALL', 'Valorant', 'Apex Legends', 'Rainbow 6 Siege', 'Rocket League', 'Fortnite'].map(game => (
+          <button 
+            key={game}
+            onClick={() => setFilterGame(game)}
+            className="font-mono"
+            style={{
+              padding: '6px 14px',
+              fontSize: '0.8rem',
+              cursor: 'pointer',
+              background: filterGame === game ? 'rgba(0, 230, 118, 0.1)' : 'transparent',
+              color: filterGame === game ? 'var(--brand)' : 'var(--text-muted)',
+              border: `1px solid ${filterGame === game ? 'var(--brand)' : 'var(--border-light)'}`,
+              transition: 'all 0.2s'
+            }}
+          >
+            {game === 'ALL' ? 'ALL GAMES' : game.toUpperCase()}
+          </button>
+        ))}
+      </div>
+
       {loading ? (
         <p className="font-mono" style={{ marginTop: '30px', fontSize: '0.85rem' }}>Loading open orders...</p>
       ) : error ? (
         <p className="font-mono" style={{ marginTop: '30px', color: 'var(--accent-secondary)', fontSize: '0.85rem' }}>{error}</p>
       ) : (
         <div style={{ marginTop: '25px', marginBottom: '80px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          {orders.map((order: any) => {
+          {orders.filter((order: any) => filterGame === 'ALL' || order.game === filterGame).map((order: any) => {
             const isExpanded = expandedOrder === order.id;
             const options = JSON.parse(order.options || "[]");
             return (
