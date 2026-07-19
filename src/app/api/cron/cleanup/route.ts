@@ -63,10 +63,22 @@ export async function GET(request: Request) {
       }
     }
 
+    // --- PENDING TRANSACTION CLEANUP ---
+    // Mark PENDING transactions older than 6 hours as FAILED
+    const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
+    const expiredTransactions = await prisma.transaction.updateMany({
+      where: {
+        status: 'PENDING',
+        createdAt: { lt: sixHoursAgo }
+      },
+      data: { status: 'FAILED' }
+    });
+
     return NextResponse.json({ 
       success: true, 
       deletedCount: orderIds.length,
-      autoReleasedCount
+      autoReleasedCount,
+      expiredTransactionsCount: expiredTransactions.count
     }, { status: 200 });
   } catch (error) {
     console.error('CRON CLEANUP ERROR:', error);
