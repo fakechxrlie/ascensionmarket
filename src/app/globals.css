@@ -1,0 +1,372 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Strict Industrial Theme */
+  --bg-main: #141517;
+  --bg-card: #1C1D21;
+  --bg-input: #111215;
+  --border-light: #2D3037;
+  --border-focus: #38BDF8;
+  
+  --text-main: #E2E8F0;
+  --text-muted: #64748B;
+  
+  --brand: #38BDF8; /* Muted Information Blue */
+  --brand-hover: #0EA5E9;
+  --accent: #00E676; /* Active Green */
+  --accent-secondary: #EF4444; /* Alert Red */
+}
+
+* { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+  border-radius: 0 !important; /* Force perfectly sharp corners everywhere */
+}
+
+body { 
+  font-family: 'Plus Jakarta Sans', sans-serif; 
+  background-color: var(--bg-main); 
+  color: var(--text-main); 
+  -webkit-font-smoothing: antialiased;
+  background-image: none; /* Strip decorative gradients */
+}
+
+/* Dense Layout Constraints */
+.container { 
+  max-width: 1100px; 
+  margin: 0 auto; 
+  padding: 0 16px; 
+}
+
+/* Monospace Class */
+.font-mono {
+  font-family: 'Fira Code', monospace !important;
+}
+
+/* Navbar */
+.navbar { 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  height: 50px; /* Reduced padding */
+  border: 1px solid var(--border-light); 
+  background: var(--bg-card); 
+  padding: 0 16px; 
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  max-width: 100%;
+  margin: 0 0 20px 0; /* Tight spacing */
+  box-shadow: none;
+}
+.logo { 
+  font-family: 'Fira Code', monospace; 
+  font-size: 1.1rem; 
+  font-weight: 700; 
+  color: var(--brand); 
+  text-decoration: none; 
+  letter-spacing: -0.5px; 
+}
+.logo span { color: var(--accent); }
+.nav-links { 
+  display: flex; 
+  gap: 20px; 
+  align-items: center; 
+  font-family: 'Fira Code', monospace;
+}
+.nav-links a { 
+  color: var(--text-muted); 
+  text-decoration: none; 
+  font-size: 0.85rem; 
+  font-weight: 500; 
+  transition: color 0.1s; 
+}
+.nav-links a:hover { color: var(--text-main); }
+.btn-login {
+  background: transparent;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-light);
+  padding: 4px 12px;
+  font-size: 0.8rem;
+}
+.btn-login:hover {
+  background: var(--border-light);
+  border-color: var(--brand);
+}
+
+/* Typography label overrides */
+h1, h2, h3, h4 { 
+  font-weight: 700; 
+  letter-spacing: -0.5px; 
+}
+h1 { font-size: 1.6rem; }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1rem; }
+
+/* Dense Cards */
+.grid-select { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+  gap: 16px; 
+  margin-top: 15px; 
+}
+
+.game-card-cover { 
+  position: relative;
+  background: var(--bg-card); 
+  border: 1px solid var(--border-light); 
+  cursor: pointer; 
+  transition: border-color 0.15s; 
+  text-decoration: none; 
+  color: var(--text-main); 
+  display: block; 
+  overflow: hidden;
+  aspect-ratio: 3 / 4; /* 1200x1600 proportions */
+}
+.game-card-cover:hover { 
+  border-color: var(--brand); 
+}
+.card-image-wrapper {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 1;
+}
+.card-bg-image {
+  width: 100%; height: 100%; object-fit: cover;
+  opacity: 0.4; /* Higher visibility card overlays */
+}
+.card-overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(20, 21, 23, 0.7);
+}
+.card-content {
+  position: absolute;
+  bottom: 0; left: 0; width: 100%;
+  padding: 12px 16px;
+  z-index: 2;
+  text-align: left;
+}
+.card-content h3 {
+  font-size: 0.95rem;
+  margin: 0;
+  font-family: 'Fira Code', monospace;
+}
+
+/* Calculator UI Spacing */
+.calc-container { 
+  display: grid; 
+  grid-template-columns: 1.8fr 1.2fr; 
+  gap: 20px; 
+  margin-top: 20px; 
+  margin-bottom: 40px; 
+}
+@media (max-width: 850px) { .calc-container { grid-template-columns: 1fr; } }
+.calc-panel { 
+  background: var(--bg-card); 
+  border: 1px solid var(--border-light); 
+  padding: 20px; 
+}
+
+.rank-row { 
+  display: flex; 
+  gap: 16px; 
+  margin-bottom: 20px; 
+  align-items: center; 
+}
+@media (max-width: 600px) { .rank-row { flex-direction: column; } }
+.rank-box { 
+  flex: 1; 
+  background: var(--bg-input); 
+  padding: 16px; 
+  border: 1px solid var(--border-light); 
+  width: 100%; 
+}
+.rank-box h3 { 
+  font-size: 0.8rem; 
+  margin-bottom: 12px; 
+  color: var(--text-muted); 
+  text-transform: uppercase; 
+  letter-spacing: 1px; 
+  font-family: 'Fira Code', monospace;
+}
+
+.form-group { margin-bottom: 12px; }
+.form-group label { 
+  display: block; 
+  font-size: 0.8rem; 
+  color: var(--text-muted); 
+  margin-bottom: 6px; 
+  font-weight: 600; 
+}
+
+/* Dense Select & Inputs */
+.custom-select-container {
+  position: relative;
+  width: 100%;
+}
+.custom-select-button {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border-light);
+  color: var(--text-main);
+  padding: 10px 12px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.custom-select-button:focus, .custom-select-container.open .custom-select-button {
+  outline: none;
+  border-color: var(--brand);
+}
+.custom-select-button svg {
+  transition: transform 0.15s;
+}
+.custom-select-container.open .custom-select-button svg {
+  transform: rotate(180deg);
+}
+.custom-select-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  z-index: 50;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+.custom-select-option {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--text-main);
+  font-family: 'Fira Code', monospace;
+}
+.custom-select-option:hover {
+  background: var(--border-light);
+  color: var(--brand);
+}
+
+.input-field, .select-field { 
+  width: 100%; 
+  background: var(--bg-input); 
+  border: 1px solid var(--border-light); 
+  color: var(--text-main); 
+  padding: 10px 12px; 
+  font-family: 'Fira Code', monospace; 
+  font-size: 0.85rem; 
+}
+.input-field:focus, .select-field:focus { 
+  outline: none; 
+  border-color: var(--brand); 
+}
+
+/* Flat boxy buttons */
+.btn-primary { 
+  width: 100%; 
+  background: var(--brand); 
+  color: #141517; 
+  border: 1px solid var(--brand); 
+  padding: 10px 20px; 
+  font-family: 'Fira Code', monospace;
+  font-weight: 700; 
+  font-size: 0.85rem; 
+  cursor: pointer; 
+  text-transform: uppercase;
+  transition: all 0.1s;
+}
+.btn-primary:hover:not(:disabled) { 
+  background: var(--brand-hover); 
+  border-color: var(--brand-hover); 
+}
+.btn-primary:disabled { 
+  background: var(--border-light); 
+  border-color: var(--border-light); 
+  color: var(--text-muted); 
+  cursor: not-allowed; 
+}
+
+/* Panels */
+.panel { 
+  background: var(--bg-card); 
+  border: 1px solid var(--border-light); 
+  padding: 16px; 
+}
+
+/* Option selections */
+.option-btn {
+  flex: 1;
+  background: var(--bg-input);
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+  padding: 10px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.option-btn.active {
+  background: var(--border-light);
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+/* Order and list tags */
+.status-badge {
+  font-family: 'Fira Code', monospace;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  border: 1px solid var(--border-light);
+}
+
+/* Chat container */
+.chat-container {
+  border: 1px solid var(--border-light);
+  background: var(--bg-input);
+}
+.chat-messages {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.chat-message {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  max-width: 80%;
+}
+.chat-message.self {
+  align-self: flex-end;
+  background: var(--border-light);
+  border-left: 3px solid var(--brand);
+}
+.chat-message.other {
+  align-self: flex-start;
+  background: var(--bg-card);
+  border-left: 3px solid var(--text-muted);
+}
+.chat-input-area {
+  display: flex;
+  border-top: 1px solid var(--border-light);
+}
+
+/* Tactical level border helper for high-level boosters */
+.booster-avatar-tactical {
+  border: 1px double var(--brand);
+  padding: 2px;
+  background: var(--bg-input);
+}
+.booster-avatar-standard {
+  border: 1px solid var(--border-light);
+}
