@@ -98,6 +98,7 @@ export default function GameMarket({ params }: { params: Promise<{ game: string 
   const [badgeOnly, setBadgeOnly] = useState(false);
   const [selectedBadges, setSelectedBadges] = useState('');
   const [extraDetails, setExtraDetails] = useState('');
+  const [popup, setPopup] = useState<{message: string, type: 'success' | 'error'} | null>(null);
 
   const [options, setOptions] = useState({
     stream: false,
@@ -152,14 +153,21 @@ export default function GameMarket({ params }: { params: Promise<{ game: string 
       });
       
       if (res.ok) {
-        alert('Order posted successfully! You can view it on your dashboard.');
-        window.location.href = '/dashboard';
+        setPopup({ message: 'Order posted successfully! You can view it on your dashboard.', type: 'success' });
       } else {
         const data = await res.json();
-        alert(data.error || 'Failed to post order');
+        setPopup({ message: data.error || 'Failed to post order', type: 'error' });
       }
     } catch (err) {
-      alert('An error occurred.');
+      setPopup({ message: 'An error occurred.', type: 'error' });
+    }
+  };
+
+  const handlePopupClose = () => {
+    if (popup?.type === 'success') {
+      window.location.href = '/dashboard';
+    } else {
+      setPopup(null);
     }
   };
 
@@ -174,6 +182,37 @@ export default function GameMarket({ params }: { params: Promise<{ game: string 
           CONFIGURE YOUR CUSTOM ORDER SELECTIONS BELOW
         </p>
       </div>
+
+      {popup && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+          background: 'rgba(0,0,0,0.85)', zIndex: 9999, 
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <div className="panel" style={{ 
+            background: 'var(--bg-card)', 
+            border: `1px solid ${popup.type === 'success' ? 'var(--brand)' : 'var(--accent-secondary)'}`, 
+            padding: '30px', 
+            maxWidth: '400px', 
+            width: '90%', 
+            textAlign: 'center' 
+          }}>
+            <h3 className="font-mono" style={{ 
+              color: popup.type === 'success' ? 'var(--brand)' : 'var(--accent-secondary)', 
+              fontSize: '1.2rem', 
+              marginBottom: '15px' 
+            }}>
+              {popup.type === 'success' ? '// SUCCESS' : '// ERROR'}
+            </h3>
+            <p className="font-mono" style={{ color: 'var(--text-main)', fontSize: '0.9rem', marginBottom: '25px', lineHeight: '1.5' }}>
+              {popup.message}
+            </p>
+            <button onClick={handlePopupClose} className="btn-primary" style={{ width: '100%', padding: '10px' }}>
+              OK
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="calc-container">
         <div className="calc-panel" style={{ border: '1px solid var(--border-light)', background: 'var(--bg-card)' }}>
