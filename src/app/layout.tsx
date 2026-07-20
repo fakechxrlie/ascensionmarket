@@ -22,7 +22,7 @@ export default async function RootLayout({
       <body>
         <AuthProvider>
           <nav className="navbar">
-            <a href="/" className="logo" style={{ fontFamily: 'system-ui, sans-serif', letterSpacing: 'normal' }}>// Ascension</a>
+            <a href="/" className="logo">// ASCENSION</a>
             <div className="nav-links">
               <a href="/market">Marketplace</a>
               {session ? (

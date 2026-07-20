@@ -39,9 +39,9 @@ body {
   padding: 0 16px; 
 }
 
-/* Monospace Class */
+/* Monospace Class (Overridden to use standard font as requested) */
 .font-mono {
-  font-family: 'Fira Code', monospace !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
 
 /* Navbar */
@@ -61,7 +61,6 @@ body {
   box-shadow: none;
 }
 .logo { 
-  font-family: 'Fira Code', monospace; 
   font-size: 1.1rem; 
   font-weight: 700; 
   color: var(--brand); 
@@ -73,7 +72,6 @@ body {
   display: flex; 
   gap: 20px; 
   align-items: center; 
-  font-family: 'Fira Code', monospace;
 }
 .nav-links a { 
   color: var(--text-muted); 
@@ -151,7 +149,6 @@ h3 { font-size: 1rem; }
 .card-content h3 {
   font-size: 0.95rem;
   margin: 0;
-  font-family: 'Fira Code', monospace;
 }
 
 /* Calculator UI Spacing */
@@ -189,7 +186,6 @@ h3 { font-size: 1rem; }
   color: var(--text-muted); 
   text-transform: uppercase; 
   letter-spacing: 1px; 
-  font-family: 'Fira Code', monospace;
 }
 
 .form-group { margin-bottom: 12px; }
@@ -212,7 +208,6 @@ h3 { font-size: 1rem; }
   border: 1px solid var(--border-light);
   color: var(--text-main);
   padding: 10px 12px;
-  font-family: 'Fira Code', monospace;
   font-size: 0.85rem;
   text-align: left;
   cursor: pointer;
@@ -247,7 +242,6 @@ h3 { font-size: 1rem; }
   cursor: pointer;
   font-size: 0.85rem;
   color: var(--text-main);
-  font-family: 'Fira Code', monospace;
 }
 .custom-select-option:hover {
   background: var(--border-light);
@@ -260,7 +254,6 @@ h3 { font-size: 1rem; }
   border: 1px solid var(--border-light); 
   color: var(--text-main); 
   padding: 10px 12px; 
-  font-family: 'Fira Code', monospace; 
   font-size: 0.85rem; 
 }
 .input-field:focus, .select-field:focus { 
@@ -275,7 +268,6 @@ h3 { font-size: 1rem; }
   color: #141517; 
   border: 1px solid var(--brand); 
   padding: 10px 20px; 
-  font-family: 'Fira Code', monospace;
   font-weight: 700; 
   font-size: 0.85rem; 
   cursor: pointer; 
@@ -307,7 +299,6 @@ h3 { font-size: 1rem; }
   border: 1px solid var(--border-light);
   color: var(--text-muted);
   padding: 10px;
-  font-family: 'Fira Code', monospace;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
@@ -320,7 +311,6 @@ h3 { font-size: 1rem; }
 
 /* Order and list tags */
 .status-badge {
-  font-family: 'Fira Code', monospace;
   padding: 2px 8px;
   font-size: 0.75rem;
   font-weight: 600;
