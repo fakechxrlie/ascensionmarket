@@ -1,5 +1,5 @@
-const WEBHOOK_BIDDING = 'https://discord.com/api/webhooks/1528487329633927268/x4Ku5395Uwm9zgkt9xJyDWlbGOwqyLTUYHAVifc7P_Jjd31_p4oOIq71J-XDYCJHlPkl';
-const WEBHOOK_ADMIN_LOGS = 'https://discord.com/api/webhooks/1528487562568794118/2Rssfl2vrlZ8ELsdmns3nEIJqsfqNNwNjXe63YD3w_3YzRPY_9_v8jo9EthWWENuG60W';
+const WEBHOOK_BIDDING = process.env.DISCORD_WEBHOOK_BIDDING || '';
+const WEBHOOK_ADMIN_LOGS = process.env.DISCORD_WEBHOOK_ADMIN_LOGS || '';
 
 interface DiscordEmbed {
   title: string;
