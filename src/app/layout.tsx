@@ -1,13 +1,45 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import AuthProvider from "./components/AuthProvider";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import LogoutButton from "./components/LogoutButton";
 
+export const viewport: Viewport = {
+  themeColor: "#38bdf8",
+};
+
 export const metadata: Metadata = {
   title: "Ascension Boosting",
-  description: "Automated game boosting dashboard with active escrow routing.",
+  description: "Ascension Boosting is a premier, high-security rank optimization marketplace. Elevate your gaming experience with our escrow-secured, professional boosting services across multiple competitive titles.",
+  metadataBase: new URL("https://www.ascensionboost.xyz"),
+  openGraph: {
+    title: "Ascension Boosting",
+    description: "Ascension Boosting is a premier, high-security rank optimization marketplace. Elevate your gaming experience with our escrow-secured, professional boosting services across multiple competitive titles.",
+    url: "https://www.ascensionboost.xyz",
+    siteName: "Ascension Boosting",
+    images: [
+      {
+        url: "/assets/ascension.ico",
+        width: 64,
+        height: 64,
+        alt: "Ascension Boosting Icon",
+      }
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Ascension Boosting",
+    description: "Ascension Boosting is a premier, high-security rank optimization marketplace. Elevate your gaming experience with our escrow-secured, professional boosting services across multiple competitive titles.",
+    images: ["/assets/ascension.ico"],
+  },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
+  },
 };
 
 export default async function RootLayout({
