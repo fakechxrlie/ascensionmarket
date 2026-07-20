@@ -67,6 +67,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
         reviewCount: booster.reviewsReceived.length,
         reviews: booster.reviewsReceived, // includes buyer { username }
         bidAmount: bid ? bid.amount : null,
+        bidId: bid ? bid.id : null,
         lastMessage,
         unreadCount
       };

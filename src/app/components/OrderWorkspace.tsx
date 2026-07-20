@@ -98,7 +98,7 @@ export default function OrderWorkspace({ order, currentUserId, currentUsername, 
   };
 
   const activeThread = threads.find(t => t.boosterId === activeBoosterId);
-  const activeBid = order.bids?.find((b: any) => b.boosterId === activeBoosterId);
+  const activeBid = activeThread?.bidId ? { id: activeThread.bidId, amount: activeThread.bidAmount } : null;
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '20px', height: '600px' }}>

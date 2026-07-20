@@ -23,7 +23,6 @@ export default async function OrderCommandCenter({ params }: { params: Promise<{
     include: {
       buyer: true,
       bids: {
-        where: { status: 'ACCEPTED' },
         include: { booster: true }
       }
     }
@@ -33,7 +32,7 @@ export default async function OrderCommandCenter({ params }: { params: Promise<{
     redirect('/dashboard');
   }
 
-  const assignedBooster = order.bids[0]?.booster;
+  const assignedBooster = order.bids.find(b => b.status === 'ACCEPTED')?.booster;
   const assignedBoosterId = assignedBooster?.id;
 
   // Verify access: Buyer, Assigned Booster, Owner, or Any Booster on an OPEN order
