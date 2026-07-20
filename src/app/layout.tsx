@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     title: "Ascension Boosting",
     description: "Ascension Boosting is a premier, high-security rank optimization marketplace. Elevate your gaming experience with our escrow-secured, professional boosting services across multiple competitive titles.",
     url: "https://www.ascensionboost.xyz",
-    siteName: "Ascension Boosting",
+    siteName: "ascensionboost.xyz",
     images: [
       {
         url: "/assets/ascension.ico",
