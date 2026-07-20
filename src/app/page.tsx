@@ -32,11 +32,6 @@ export default function Home() {
               EXPLORE MARKETPLACE
             </button>
           </a>
-          <a href="/verify" style={{ textDecoration: 'none' }}>
-            <button className="btn-primary" style={{ width: 'auto', padding: '12px 30px', fontSize: '0.85rem', background: 'transparent', color: 'var(--text-main)', border: '1px solid var(--border-light)' }}>
-              BECOME A BOOSTER
-            </button>
-          </a>
         </div>
       </div>
 

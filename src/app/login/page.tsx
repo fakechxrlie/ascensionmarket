@@ -53,7 +53,7 @@ function LoginContent() {
       <div className="panel" style={{ maxWidth: '400px', width: '100%', marginTop: '50px', border: '1px solid var(--border-light)', background: 'var(--bg-card)' }}>
         <div style={{ borderBottom: '1px solid var(--border-light)', paddingBottom: '10px', marginBottom: '20px' }}>
           <h2 className="font-mono" style={{ fontSize: '1.1rem', color: 'var(--brand)', margin: 0 }}>
-            {isRegistering ? '// REGISTER COMPLIANCE NODE' : '// IDENTITY AUTHENTICATION'}
+            {isRegistering ? '// REGISTER ACCOUNT' : '// IDENTITY AUTHENTICATION'}
           </h2>
         </div>
 
@@ -62,7 +62,7 @@ function LoginContent() {
         <form onSubmit={handleSubmit}>
           {isRegistering && (
             <div className="form-group">
-              <label className="font-mono" style={{ fontSize: '0.75rem' }}>NODE ALIAS (USERNAME)</label>
+              <label className="font-mono" style={{ fontSize: '0.75rem' }}>USERNAME</label>
               <input type="text" required className="input-field" placeholder="e.g. ProBooster99" value={username} onChange={e => setUsername(e.target.value)} />
             </div>
           )}
@@ -71,16 +71,16 @@ function LoginContent() {
             <input type="email" required className="input-field" placeholder="Enter registration email" value={email} onChange={e => setEmail(e.target.value)} />
           </div>
           <div className="form-group" style={{ marginBottom: '20px' }}>
-            <label className="font-mono" style={{ fontSize: '0.75rem' }}>SECURE ACCESS KEY (PASSWORD)</label>
+            <label className="font-mono" style={{ fontSize: '0.75rem' }}>PASSWORD</label>
             <input type="password" required className="input-field" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} />
           </div>
           <button type="submit" className="btn-primary" style={{ width: '100%' }}>
-            {isRegistering ? 'INITIALIZE NODE' : 'AUTHENTICATE ACCESS'}
+            {isRegistering ? 'CREATE ACCOUNT' : 'AUTHENTICATE ACCESS'}
           </button>
         </form>
 
         <p className="font-mono" style={{ marginTop: '20px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-          {isRegistering ? 'EXISTING NODE? ' : 'NO COMPLIANT NODE SEED? '}
+          {isRegistering ? 'ALREADY HAVE AN ACCOUNT? ' : 'NO ACCOUNT? '}
           <button type="button" onClick={() => setIsRegistering(!isRegistering)} style={{ color: 'var(--brand)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700 }}>
             {isRegistering ? 'SIGN IN' : 'REGISTER NOW'}
           </button>

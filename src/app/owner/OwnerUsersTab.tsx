@@ -57,6 +57,7 @@ export default function OwnerUsersTab({
               </h4>
               <div className="font-mono" style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '4px' }}>
                 {u.email} | Joined: {new Date(u.createdAt).toLocaleDateString()} | IP: {u.ipAddress || 'N/A'}
+                {u.discordUsername && ` | Discord: @${u.discordUsername}`}
               </div>
             </div>
             

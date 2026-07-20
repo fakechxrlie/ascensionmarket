@@ -79,13 +79,54 @@ export async function GET(request: Request) {
     }
 
     // Link it
-    await prisma.user.update({
+    const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
         discordId,
         discordUsername,
       },
     });
+
+    // Discord Guild Join / Role assignment
+    const botToken = process.env.DISCORD_BOT_TOKEN;
+    const guildId = process.env.DISCORD_GUILD_ID;
+    if (botToken && guildId) {
+      const roles: string[] = [];
+      const memberRoleId = process.env.DISCORD_MEMBER_ROLE_ID;
+      const boosterRoleId = process.env.DISCORD_BOOSTER_ROLE_ID;
+
+      if (memberRoleId) roles.push(memberRoleId);
+      if ((updatedUser.role === 'BOOSTER' || updatedUser.role === 'OWNER') && boosterRoleId) {
+        roles.push(boosterRoleId);
+      }
+
+      try {
+        const joinRes = await fetch(`https://discord.com/api/guilds/${guildId}/members/${discordId}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bot ${botToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            access_token: accessToken,
+            roles: roles,
+          }),
+        });
+
+        if (joinRes.status === 204) {
+          for (const roleId of roles) {
+            await fetch(`https://discord.com/api/guilds/${guildId}/members/${discordId}/roles/${roleId}`, {
+              method: 'PUT',
+              headers: {
+                'Authorization': `Bot ${botToken}`,
+              },
+            });
+          }
+        }
+      } catch (e) {
+        console.error('Error adding user to Discord guild:', e);
+      }
+    }
 
     return NextResponse.redirect(new URL('/dashboard/settings?msg=discord_linked', request.url));
   } catch (error) {
