@@ -3,7 +3,6 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
-import OrderBids from '../components/OrderBids';
 import OrderActions from '../components/OrderActions';
 import { revalidatePath } from 'next/cache';
 
@@ -302,8 +301,14 @@ export default async function Dashboard() {
 
                 {order.status === 'OPEN' && (
                   <div style={{ borderTop: '1px solid var(--border-light)', marginTop: '12px', paddingTop: '12px' }}>
-                    <h4 className="font-mono" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '8px' }}>RECEIVED BIDS ({order.bids.length})</h4>
-                    <OrderBids orderId={order.id} bids={order.bids} currentUsername={user.username} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <h4 className="font-mono" style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                        WAITING FOR BOOSTER
+                      </h4>
+                      <a href={`/orders/${order.id}`} className="btn-primary" style={{ textDecoration: 'none', padding: '6px 12px', fontSize: '0.75rem', width: 'auto' }}>
+                        OPEN WORKSPACE ➜
+                      </a>
+                    </div>
                   </div>
                 )}
               </div>

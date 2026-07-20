@@ -17,7 +17,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       where: { orderId },
       include: { 
         booster: { 
-          select: { id: true, username: true, reviewsAsBooster: { select: { rating: true } } } 
+          select: { id: true, username: true, reviewsReceived: { select: { rating: true } } } 
         } 
       }
     });
@@ -34,8 +34,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     // 1. Add all boosters who have bidded
     for (const bid of bids) {
       if (!threadMap.has(bid.boosterId)) {
-        const ratingSum = bid.booster.reviewsAsBooster.reduce((sum: number, r: any) => sum + r.rating, 0);
-        const avgRating = bid.booster.reviewsAsBooster.length ? (ratingSum / bid.booster.reviewsAsBooster.length).toFixed(1) : 'New';
+        const ratingSum = bid.booster.reviewsReceived.reduce((sum: number, r: any) => sum + r.rating, 0);
+        const avgRating = bid.booster.reviewsReceived.length ? (ratingSum / bid.booster.reviewsReceived.length).toFixed(1) : 'New';
         
         threadMap.set(bid.boosterId, {
           boosterId: bid.boosterId,

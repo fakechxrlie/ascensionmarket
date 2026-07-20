@@ -202,8 +202,6 @@ export default async function OrderCommandCenter({ params }: { params: Promise<{
             </div>
           </div>
         )}
-
-      </div>
     </main>
   );
 }
