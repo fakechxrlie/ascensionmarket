@@ -14,11 +14,26 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
     if (!boosterId) return NextResponse.json({ error: 'boosterId is required' }, { status: 400 });
 
+    const markRead = searchParams.get('markRead') === 'true';
+
     const messages = await prisma.message.findMany({
       where: { orderId: p.id, threadBoosterId: boosterId },
       orderBy: { createdAt: 'asc' },
       include: { sender: { select: { username: true, role: true } } }
     });
+
+    if (markRead) {
+      // Mark all unread messages in this thread NOT sent by the current user as read
+      await prisma.message.updateMany({
+        where: {
+          orderId: p.id,
+          threadBoosterId: boosterId,
+          senderId: { not: (session.user as any).id },
+          isRead: false
+        },
+        data: { isRead: true }
+      });
+    }
 
     return NextResponse.json({ messages });
   } catch (err) {

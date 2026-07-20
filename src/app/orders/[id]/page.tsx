@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import OrderChat from '../../components/OrderChat';
 import CredentialVault from '../../components/CredentialVault';
 import OrderActions from '../../components/OrderActions';
+import OrderWorkspace from '../../components/OrderWorkspace';
 
 export default async function OrderCommandCenter({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -35,14 +36,17 @@ export default async function OrderCommandCenter({ params }: { params: Promise<{
   const assignedBooster = order.bids[0]?.booster;
   const assignedBoosterId = assignedBooster?.id;
 
-  // Verify access: Buyer, Booster, or Owner
+  // Verify access: Buyer, Assigned Booster, Owner, or Any Booster on an OPEN order
   const isBuyer = order.buyerId === userId;
-  const isBooster = assignedBoosterId === userId;
+  const isAssignedBooster = assignedBoosterId === userId;
   const isOwner = user.role === 'OWNER';
+  const isAnyBoosterOpenOrder = user.role === 'BOOSTER' && order.status === 'OPEN';
 
-  if (!isBuyer && !isBooster && !isOwner) {
+  if (!isBuyer && !isAssignedBooster && !isOwner && !isAnyBoosterOpenOrder) {
     redirect('/dashboard');
   }
+
+  const isBooster = isAssignedBooster || isAnyBoosterOpenOrder;
 
   // Calculate timeline steps
   // 1. Placed (Always true)
@@ -166,26 +170,39 @@ export default async function OrderCommandCenter({ params }: { params: Promise<{
             )}
           </div>
         </div>
+      </div>
 
-        {/* Right Side: Buyer-Booster Workspace Chat */}
-        <div>
-          {assignedBoosterId ? (
-            <div className="panel" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', padding: '20px', height: '100%', display: 'flex', flexDirection: 'column' }}>
+        {/* Dynamic lower section depending on status */}
+        {order.status === 'OPEN' ? (
+          <div style={{ marginTop: '30px' }}>
+            <OrderWorkspace 
+              order={order} 
+              currentUserId={userId} 
+              currentUsername={session.user?.name || user.username} 
+              isBuyer={isBuyer} 
+              isBooster={isBooster || (!isBuyer && user.role === 'BOOSTER')} 
+            />
+          </div>
+        ) : (
+          <div style={{ marginTop: '30px' }}>
+            <div className="panel" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', padding: '20px', height: '400px', display: 'flex', flexDirection: 'column' }}>
               <h3 className="font-mono" style={{ margin: '0 0 15px 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>WORKSPACE CHAT</h3>
               <div style={{ flex: 1 }}>
-                <OrderChat 
-                  orderId={order.id} 
-                  boosterId={assignedBoosterId} 
-                  currentUsername={session.user?.name || user.username} 
-                />
+                {assignedBoosterId ? (
+                  <OrderChat 
+                    orderId={order.id} 
+                    boosterId={assignedBoosterId} 
+                    currentUsername={session.user?.name || user.username} 
+                    height="100%"
+                  />
+                ) : (
+                  <p className="font-mono" style={{ color: 'var(--text-muted)' }}>[NO BOOSTER ASSIGNED YET]</p>
+                )}
               </div>
             </div>
-          ) : (
-            <div className="panel font-mono" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', padding: '20px', textAlign: 'center', color: 'var(--text-muted)' }}>
-              [CHAT WILL BE UNLOCKED ONCE BOOSTER IS ASSIGNED]
-            </div>
-          )}
-        </div>
+          </div>
+        )}
+
       </div>
     </main>
   );

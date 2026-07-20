@@ -25,14 +25,14 @@ const playBeep = () => {
   }
 };
 
-export default function OrderChat({ orderId, boosterId, currentUsername }: { orderId: string, boosterId: string, currentUsername: string }) {
+export default function OrderChat({ orderId, boosterId, currentUsername, height = '300px' }: { orderId: string, boosterId: string, currentUsername: string, height?: string }) {
   const [messages, setMessages] = useState<any[]>([]);
   const messagesLengthRef = useRef(0);
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(true);
 
   const fetchMessages = async () => {
-    const res = await fetch(`/api/orders/${orderId}/chat?boosterId=${boosterId}`);
+    const res = await fetch(`/api/orders/${orderId}/chat?boosterId=${boosterId}&markRead=true`);
     if (res.ok) {
       const data = await res.json();
       
@@ -72,7 +72,7 @@ export default function OrderChat({ orderId, boosterId, currentUsername }: { ord
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '300px', background: 'var(--bg-main)', borderRadius: '8px', border: '1px solid var(--border-light)', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height, background: 'var(--bg-main)', borderRadius: '8px', border: '1px solid var(--border-light)', overflow: 'hidden' }}>
       <div style={{ padding: '10px 15px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-light)', fontWeight: 600 }}>
         Live Chat
       </div>
