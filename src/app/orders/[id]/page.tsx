@@ -118,56 +118,53 @@ export default async function OrderCommandCenter({ params }: { params: Promise<{
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px' }}>
-        {/* Left Side: Order Details & Escrow Vault & Protection */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
-          {/* Order specs */}
-          <div className="panel" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', padding: '20px' }}>
-            <h3 className="font-mono" style={{ margin: '0 0 15px 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>ORDER SPECIFICATIONS</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div className="font-mono" style={{ fontSize: '0.9rem' }}>
-                Game: <strong style={{ color: 'var(--brand)' }}>{order.game}</strong>
-              </div>
-              <div className="font-mono" style={{ fontSize: '0.9rem' }}>
-                From: <strong>{order.startRank} {order.startDiv}</strong> ➜ To: <strong>{order.targetRank} {order.targetDiv}</strong>
-              </div>
-              <div className="font-mono" style={{ fontSize: '0.9rem' }}>
-                Escrow Locked: <strong style={{ color: 'var(--accent)' }}>${order.escrowAmount.toFixed(2)}</strong>
-              </div>
-              <div className="font-mono" style={{ fontSize: '0.9rem' }}>
-                Assigned Booster: <strong>{assignedBooster ? assignedBooster.username : '[WAITING FOR PAYMENT/ACCEPTANCE]'}</strong>
-              </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '25px', marginBottom: '25px' }}>
+        {/* Order specs */}
+        <div className="panel" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', padding: '20px', margin: 0 }}>
+          <h3 className="font-mono" style={{ margin: '0 0 15px 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>ORDER SPECIFICATIONS</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div className="font-mono" style={{ fontSize: '0.9rem' }}>
+              Game: <strong style={{ color: 'var(--brand)' }}>{order.game}</strong>
+            </div>
+            <div className="font-mono" style={{ fontSize: '0.9rem' }}>
+              From: <strong>{order.startRank} {order.startDiv}</strong> ➜ To: <strong>{order.targetRank} {order.targetDiv}</strong>
+            </div>
+            <div className="font-mono" style={{ fontSize: '0.9rem' }}>
+              Escrow Locked: <strong style={{ color: 'var(--accent)' }}>${order.escrowAmount.toFixed(2)}</strong>
+            </div>
+            <div className="font-mono" style={{ fontSize: '0.9rem' }}>
+              Assigned Booster: <strong>{assignedBooster ? assignedBooster.username : '[WAITING FOR PAYMENT/ACCEPTANCE]'}</strong>
             </div>
           </div>
+        </div>
 
-          {/* Credentials Vault */}
-          {order.status !== 'OPEN' && (
-            <CredentialVault 
-              orderId={order.id} 
-              isBuyer={isBuyer} 
-              initialCredentials={order.credentials} 
-            />
+        {/* Credentials Vault */}
+        {order.status !== 'OPEN' && (
+          <CredentialVault 
+            orderId={order.id} 
+            isBuyer={isBuyer} 
+            initialCredentials={order.credentials} 
+          />
+        )}
+
+        {/* Escrow Protection Info & Actions */}
+        <div className="panel" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', padding: '20px', margin: 0 }}>
+          <h3 className="font-mono" style={{ margin: '0 0 15px 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>🛡️ ESCROW PROTECTION CENTRE</h3>
+          <p className="font-mono" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>
+            This transaction is protected by Ascension Escrow. Funds are locked securely and will only be released to the booster upon completion confirmation or auto-release timer expiration.
+          </p>
+          
+          {order.status === 'PENDING_COMPLETION' && (
+            <div className="font-mono" style={{ padding: '8px 12px', background: 'rgba(0, 230, 118, 0.1)', border: '1px solid var(--accent)', color: 'var(--accent)', fontSize: '0.75rem', margin: '15px 0' }}>
+              Booster marked this order complete. Please verify in-game before releasing funds.
+            </div>
           )}
 
-          {/* Escrow Protection Info & Actions */}
-          <div className="panel" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', padding: '20px' }}>
-            <h3 className="font-mono" style={{ margin: '0 0 15px 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>🛡️ ESCROW PROTECTION CENTRE</h3>
-            <p className="font-mono" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>
-              This transaction is protected by Ascension Escrow. Funds are locked securely and will only be released to the booster upon completion confirmation or auto-release timer expiration.
-            </p>
-            
-            {order.status === 'PENDING_COMPLETION' && (
-              <div className="font-mono" style={{ padding: '8px 12px', background: 'rgba(0, 230, 118, 0.1)', border: '1px solid var(--accent)', color: 'var(--accent)', fontSize: '0.75rem', margin: '15px 0' }}>
-                Booster marked this order complete. Please verify in-game before releasing funds.
-              </div>
-            )}
-
-            {(order.status === 'IN_PROGRESS' || order.status === 'PENDING_COMPLETION') && (
-              <div style={{ marginTop: '15px' }}>
-                <OrderActions orderId={order.id} status={order.status} />
-              </div>
-            )}
-          </div>
+          {(order.status === 'IN_PROGRESS' || order.status === 'PENDING_COMPLETION') && (
+            <div style={{ marginTop: '15px' }}>
+              <OrderActions orderId={order.id} status={order.status} />
+            </div>
+          )}
         </div>
       </div>
 
