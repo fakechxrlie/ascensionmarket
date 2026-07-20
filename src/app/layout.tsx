@@ -85,17 +85,17 @@ export default async function RootLayout({
                     <div className="font-mono" style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.75rem' }}>
                       <a href="/rules?tab=tos" style={{ color: 'var(--text-muted)', textDecoration: 'none' }} className="footer-link">Terms of Service</a>
                       <a href="/rules?tab=conduct" style={{ color: 'var(--text-muted)', textDecoration: 'none' }} className="footer-link">Booster Conduct & Fees</a>
-                      <a href="/rules?tab=escrow" style={{ color: 'var(--text-muted)', textDecoration: 'none' }} className="footer-link">Escrow Vault Mechanics</a>
-                      <a href="/rules?tab=safety" style={{ color: 'var(--text-muted)', textDecoration: 'none' }} className="footer-link">Safety & Guarantees</a>
+                      <a href="/rules?tab=escrow" style={{ color: 'var(--text-muted)', textDecoration: 'none' }} className="footer-link">Escrow System</a>
+                      <a href="/rules?tab=safety" style={{ color: 'var(--text-muted)', textDecoration: 'none' }} className="footer-link">Account Protection</a>
                     </div>
                   </div>
 
                   <div>
-                    <h4 className="font-mono" style={{ fontSize: '0.8rem', color: 'var(--text-main)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Security Metrics</h4>
+                    <h4 className="font-mono" style={{ fontSize: '0.8rem', color: 'var(--text-main)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Trade Security</h4>
                     <div className="font-mono" style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      <div>Vault Status: <span style={{ color: 'var(--accent)' }}>ESCROW LOCKED</span></div>
-                      <div>Encryption: <span style={{ color: 'var(--brand)' }}>AES-256-GCM</span></div>
-                      <div>Node Location: <span style={{ color: 'var(--text-main)' }}>VPN-ROUTE ENFORCED</span></div>
+                      <div>Escrow Protection: <span style={{ color: 'var(--accent)' }}>ACTIVE</span></div>
+                      <div>Booster Verification: <span style={{ color: 'var(--brand)' }}>ENABLED</span></div>
+                      <div>Dispute Support: <span style={{ color: 'var(--text-main)' }}>24/7 SUPPORT</span></div>
                     </div>
                   </div>
                 </div>
@@ -114,7 +114,6 @@ export default async function RootLayout({
                 gap: '10px'
               }}>
                 <div>&copy; {new Date().getFullYear()} ASCENSION INC. ALL RIGHTS RESERVED.</div>
-                <div>CLASSIFIED INFORMATION // SYSTEM ACCESS ENVELOPE</div>
               </div>
             </footer>
           </div>

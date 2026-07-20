@@ -19,7 +19,6 @@ function RulesContent() {
 
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);
-    // Update the URL without reloading the page
     const params = new URLSearchParams(window.location.search);
     params.set('tab', tab);
     router.replace(`/rules?${params.toString()}`);
@@ -36,20 +35,11 @@ function RulesContent() {
         marginBottom: '30px',
         position: 'relative'
       }}>
-        <div style={{
-          position: 'absolute',
-          top: '12px',
-          right: '16px',
-          fontSize: '0.75rem',
-          color: 'var(--accent)'
-        }} className="font-mono">
-          [SYSTEM STATUS: ONLINE]
-        </div>
         <h1 className="font-mono" style={{ fontSize: '1.8rem', margin: '0 0 10px 0', color: 'var(--text-main)', letterSpacing: '-0.5px' }}>
-          // LEGAL & REGULATORY FRAMEWORK
+          // REGULATORY FRAMEWORK & RULES
         </h1>
         <p className="font-mono" style={{ color: 'var(--text-muted)', fontSize: '0.8rem', margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>
-          DOCUMENT VERSION 4.2 // SECURITY AUDITED // COMPLIANCE GUIDELINES
+          VERSION 1.0 // COMPLIANCE GUIDELINES
         </p>
       </div>
 
@@ -104,7 +94,7 @@ function RulesContent() {
                   transition: 'all 0.1s'
                 }}
               >
-                [02] BOOSTER CONDUCT & FEES
+                [02] BOOSTER RULES & FEES
               </button>
 
               <button
@@ -142,14 +132,14 @@ function RulesContent() {
                   transition: 'all 0.1s'
                 }}
               >
-                [04] SAFETY & GUARANTEES
+                [04] ACCOUNT PROTECTION
               </button>
             </div>
           </div>
 
           <div className="panel font-mono" style={{ marginTop: '16px', fontSize: '0.7rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
-            <strong style={{ color: 'var(--text-main)', display: 'block', marginBottom: '4px' }}>🛡️ TRUST PROTOCOL</strong>
-            All transactions undergo multi-layered encryption. Funds are locked securely in our digital vault. Contact support if you experience issues.
+            <strong style={{ color: 'var(--text-main)', display: 'block', marginBottom: '4px' }}>🛡️ ESCROW PROTECTION</strong>
+            Payments are held securely by the platform and only released to boosters when the job is completed and verified.
           </div>
         </div>
 
@@ -223,7 +213,7 @@ function RulesContent() {
           {activeTab === 'conduct' && (
             <div>
               <h2 className="font-mono" style={{ borderBottom: '1px solid var(--border-light)', paddingBottom: '10px', marginBottom: '20px', color: 'var(--brand)', fontSize: '1.2rem' }}>
-                // BOOSTER CODE OF CONDUCT & FEES
+                // BOOSTER RULES & FEES
               </h2>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', fontSize: '0.9rem', lineHeight: '1.6', color: 'var(--text-main)' }}>
@@ -293,21 +283,21 @@ function RulesContent() {
           {activeTab === 'escrow' && (
             <div>
               <h2 className="font-mono" style={{ borderBottom: '1px solid var(--border-light)', paddingBottom: '10px', marginBottom: '20px', color: 'var(--brand)', fontSize: '1.2rem' }}>
-                // ESCROW PROTECTION SYSTEM
+                // ESCROW SYSTEM
               </h2>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', fontSize: '0.9rem', lineHeight: '1.6', color: 'var(--text-main)' }}>
                 <p>
-                  To eliminate exit-scams, booster ghosting, and chargebacks, Ascension operates a strict multi-stage <strong>Escrow Vaulting System</strong>. Neither the booster nor the site operators have access to withdraw transaction funds while the job is active.
+                  Ascension uses an escrow system to ensure safe transactions. Funds are held securely by the platform and are only released once the boost is completed.
                 </p>
 
                 {/* Escrow Flow Steps */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', margin: '10px 0' }}>
                   <div className="panel" style={{ background: 'var(--bg-input)' }}>
                     <div className="font-mono" style={{ color: 'var(--brand)', fontSize: '0.8rem', marginBottom: '6px' }}>STAGE 01</div>
-                    <strong style={{ fontSize: '0.85rem', display: 'block', marginBottom: '4px' }}>VAULT LOCK</strong>
+                    <strong style={{ fontSize: '0.85rem', display: 'block', marginBottom: '4px' }}>DEPOSIT</strong>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>
-                      Client accepts bid and pays. Funds are locked securely in Escrow.
+                      Buyer accepts bid and pays. Funds are locked in escrow.
                     </span>
                   </div>
 
@@ -315,59 +305,51 @@ function RulesContent() {
                     <div className="font-mono" style={{ color: 'var(--brand)', fontSize: '0.8rem', marginBottom: '6px' }}>STAGE 02</div>
                     <strong style={{ fontSize: '0.85rem', display: 'block', marginBottom: '4px' }}>WORK ACTIVE</strong>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>
-                      Booster performs the boost. Credentials are unlocked to the booster.
+                      Booster gains access to details and performs the boost.
                     </span>
                   </div>
 
                   <div className="panel" style={{ background: 'var(--bg-input)' }}>
                     <div className="font-mono" style={{ color: 'var(--brand)', fontSize: '0.8rem', marginBottom: '6px' }}>STAGE 03</div>
-                    <strong style={{ fontSize: '0.85rem', display: 'block', marginBottom: '4px' }}>VERIFICATION</strong>
+                    <strong style={{ fontSize: '0.85rem', display: 'block', marginBottom: '4px' }}>INSPECTION</strong>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>
-                      Booster marks job complete. Buyer inspects account and approves.
+                      Booster marks job complete. Buyer inspects in-game status.
                     </span>
                   </div>
 
                   <div className="panel" style={{ background: 'var(--bg-input)' }}>
                     <div className="font-mono" style={{ color: 'var(--accent)', fontSize: '0.8rem', marginBottom: '6px' }}>STAGE 04</div>
-                    <strong style={{ fontSize: '0.85rem', display: 'block', marginBottom: '4px' }}>DISBURSEMENT</strong>
+                    <strong style={{ fontSize: '0.85rem', display: 'block', marginBottom: '4px' }}>RELEASE</strong>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>
-                      Escrow releases. 90% goes to Booster, 10% to Platform.
+                      Funds release to booster (90%) and platform (10%).
                     </span>
                   </div>
                 </div>
 
                 <div style={{ borderLeft: '2px solid var(--border-light)', paddingLeft: '15px' }}>
                   <h3 className="font-mono" style={{ fontSize: '0.9rem', marginBottom: '8px', color: 'var(--text-main)' }}>
-                    1. AUTO-RELEASE TIMER (72 HOURS)
+                    1. 72-HOUR AUTO-RELEASE
                   </h3>
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                    When a booster completes a job and clicks <strong>&quot;Mark Complete &amp; Wait for Escrow&quot;</strong>, the system starts a strict 72-hour countdown. If the client does not manually approve the order or raise a dispute within this timeframe, the system assumes full completion and automatically releases the escrow to the booster. This ensures boosters are paid in a timely manner even if clients become unresponsive.
+                    When a booster completes a job, you have 72 hours to verify that the target rank has been reached. If you do not approve the job or open a dispute within 72 hours, the platform automatically releases the payment to the booster.
                   </p>
                 </div>
 
                 <div style={{ borderLeft: '2px solid var(--border-light)', paddingLeft: '15px' }}>
                   <h3 className="font-mono" style={{ fontSize: '0.9rem', marginBottom: '8px', color: 'var(--text-main)' }}>
-                    2. DISPUTE FREEZE MECHANISM
+                    2. DISPUTES
                   </h3>
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                    If the client raises a dispute, the auto-release timer is terminated and the escrow is frozen in status. Neither party can retrieve the funds. The order chat logs and logs of booster screenshots are made available to the dispute resolution dashboard for admin arbitration.
+                    If there is an issue with the order, you can open a dispute. This freezes the escrow funds. Our support team will review the chat logs and account status to resolve the case fairly.
                   </p>
                 </div>
 
                 <div style={{ borderLeft: '2px solid var(--border-light)', paddingLeft: '15px' }}>
                   <h3 className="font-mono" style={{ fontSize: '0.9rem', marginBottom: '8px', color: 'var(--text-main)' }}>
-                    3. ARBITRATION AUDIT PROCESS
+                    3. REFUNDS & PRO-RATA RESOLUTIONS
                   </h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '6px' }}>
-                    An Ascension Dispute Admin will investigate the claims. The auditing process relies on:
-                  </p>
-                  <ul style={{ paddingLeft: '20px', color: 'var(--text-muted)', fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <li>Verification of start and current in-game ranks.</li>
-                    <li>Order communication log details.</li>
-                    <li>Uploaded screenshots and files showing game client matching status.</li>
-                  </ul>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '6px' }}>
-                    Admins will distribute escrow balances proportionally. For instance, if the booster achieved 70% of the target, they may be awarded 70% of the payout, with the remaining 30% refunded to the client. Admin rulings are final.
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                    If a boost is only partially completed, our team will calculate the progress made and split the escrow payout proportionally between the buyer and the booster. Admin decisions on dispute settlements are final.
                   </p>
                 </div>
               </div>
@@ -377,50 +359,47 @@ function RulesContent() {
           {activeTab === 'safety' && (
             <div>
               <h2 className="font-mono" style={{ borderBottom: '1px solid var(--border-light)', paddingBottom: '10px', marginBottom: '20px', color: 'var(--brand)', fontSize: '1.2rem' }}>
-                // SAFETY & GUARANTEES
+                // ACCOUNT PROTECTION
               </h2>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', fontSize: '0.9rem', lineHeight: '1.6', color: 'var(--text-main)' }}>
                 <p>
-                  We prioritize safety and security over speed. Ascension mandates strict operational safeguards to protect your game credentials and prevent suspicious publisher login warnings.
+                  We prioritize your account security. Boosters are required to follow strict security guidelines to protect your credentials and prevent publisher detection.
                 </p>
 
                 <div style={{ borderLeft: '2px solid var(--border-light)', paddingLeft: '15px' }}>
                   <h3 className="font-mono" style={{ fontSize: '0.9rem', marginBottom: '8px', color: 'var(--text-main)' }}>
-                    1. GEOLOCATION & VPN ENFORCEMENT
+                    1. VPN MATCHING
                   </h3>
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                    Boosters must configure a secure VPN node matching the client&apos;s state, region, and country before logging into any client game account. This matches normal login telemetry and reduces flagging from publisher security bots checking for sudden location changes (e.g. logging in from New York, then from Germany 2 hours later).
+                    Boosters must use a VPN set to your country and region when logging in. This matches your normal login patterns and helps prevent suspicious activity flags from the game publisher.
                   </p>
                 </div>
 
                 <div style={{ borderLeft: '2px solid var(--border-light)', paddingLeft: '15px' }}>
                   <h3 className="font-mono" style={{ fontSize: '0.9rem', marginBottom: '8px', color: 'var(--text-main)' }}>
-                    2. INCOGNITO / APPEAR OFFLINE PLAY
+                    2. STEALTH MODE
                   </h3>
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                    All piloted boosts must be performed in stealth mode. Boosters must run games in &quot;Offline&quot; or &quot;Appear Offline&quot; settings. Boosters are strictly prohibited from chatting with the client&apos;s friend list, sending party invites, or revealing that they are a third party operating the account.
+                    Boosters must play in offline mode where supported. They are prohibited from talking to your friends, replying to messages, or changing any client settings without your permission.
                   </p>
                 </div>
 
                 <div style={{ borderLeft: '2px solid var(--border-light)', paddingLeft: '15px' }}>
                   <h3 className="font-mono" style={{ fontSize: '0.9rem', marginBottom: '8px', color: 'var(--text-main)' }}>
-                    3. AES-256 CREDENTIAL ENCRYPTION
+                    3. CREDENTIAL ENCRYPTION
                   </h3>
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                    Client game login details are encrypted at rest using industry-standard AES-256 algorithms. The assigned booster can only decrypt credentials after they win the bid and the client pays the escrow. Credentials are purged from active view as soon as the booster marks the job completed.
+                    Your password is encrypted and is only visible to the assigned booster while they are working on your order. Credentials are removed from the booster&apos;s panel once the job is marked complete.
                   </p>
                 </div>
 
                 <div style={{ borderLeft: '2px solid var(--border-light)', paddingLeft: '15px' }}>
                   <h3 className="font-mono" style={{ fontSize: '0.9rem', marginBottom: '8px', color: 'var(--text-main)' }}>
-                    4. COMPENSATIONS & BAN GUARANTEE
+                    4. BAN REFUNDS
                   </h3>
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                    In the highly rare event that a client&apos;s account suffers an in-game ban due directly to the booster&apos;s service (e.g. booster toxic chat behavior, booster cheating, or improper VPN setup), the client receives a <strong>100% refund of the escrow</strong>. 
-                  </p>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                    The refund is funded directly by deducting the amount from the booster&apos;s account balance, and the booster&apos;s credentials will be immediately suspended.
+                    If an account is banned during the boost due to the booster&apos;s actions (such as cheating or toxic behavior), you will receive a 100% refund.
                   </p>
                 </div>
               </div>
@@ -437,7 +416,7 @@ export default function RulesPage() {
   return (
     <Suspense fallback={
       <main className="container font-mono" style={{ marginTop: '40px', marginBottom: '80px', color: 'var(--text-muted)' }}>
-        Loading Ascension Legal Framework...
+        Loading Ascension Regulatory Framework...
       </main>
     }>
       <RulesContent />

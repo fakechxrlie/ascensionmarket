@@ -162,7 +162,7 @@ export default async function OrderCommandCenter({ params }: { params: Promise<{
 
           {(order.status === 'IN_PROGRESS' || order.status === 'PENDING_COMPLETION') && (
             <div style={{ marginTop: '15px' }}>
-              <OrderActions orderId={order.id} status={order.status} />
+              <OrderActions orderId={order.id} status={order.status} isBuyer={isBuyer} isBooster={isBooster} />
             </div>
           )}
         </div>

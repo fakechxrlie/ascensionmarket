@@ -1,29 +1,31 @@
-# Redesign & Multi-Game File Uploads Complete
+# Regulatory Framework & Global Footer Complete
 
-We have successfully replaced all default browser dialogs with custom, premium inline elements, restricted bid inputs, simplified the main landing page, renamed application parameters, and overalled the Booster Verification flow to support real file uploads and multi-game selection!
+We have successfully created a clear and professional policies and rules page (`/rules`) and integrated a streamlined, industrial-style footer across the entire application interface.
 
-## Style & Dialog Features:
-1. **Landing Page Overhaul:**
-   * Simplified the homepage content to feature a direct description of the Ascension marketplace, removing all mock logs, system monitors, and fake statistics.
-   * Renders a clean grid layout containing the vertical **`3/4`** ratio game selection card links.
-2. **Custom Inline Modals & Banners:**
-   * **Edit Bid:** Clicking EDIT on a bid now changes the listing row into an **inline text input** with SAVE and CANCEL actions instead of using a browser `prompt` popup.
-   * **Delete Bid:** Clicking DELETE now turns the row into an inline confirmation banner: **`DELETE THIS BID? YES / NO`** instead of using a browser `confirm` popup.
-   * **Custom Alerts:** Replaced all browser `alert()` popups on the Job Board and Bids list with sleek, monospace **`[SYSTEM STATUS: ...]`** toast bars that display at the top of the interface.
-3. **Restricted Bid Input:**
-   * Added `min="0"` and validation check to prevent entering negative numbers in the bid box.
-   * Removed Firefox/Safari input scroll arrows globally so number input stays clean and boxy.
-4. **Copywriting Cleanup:**
-   * Replaced the text "Submit KYC Application" in the global navigation bar with **"Become a Booster"**.
-   * Replaced the dashboard reminder label with **"BECOME A BOOSTER"**.
+## Updates & Simplifications:
 
-## Booster Verification Upgrades (`/verify`):
-1. **Dashed File Drag-and-Drop Zones:**
-   * Replaced the Doc 1, Doc 2, and Skill Proof URL inputs with real, interactive **file upload dropzones**.
-   * Converts selected files to Base64 data URLs in real time and renders thumbnail previews directly inside the form.
-2. **Multi-Game Selector:**
-   * Replaced the single-game dropdown with a **checkbox list of all available games**.
-   * Selecting multiple games dynamically reveals specific, dedicated inputs to enter the **Account Name/ID** and upload a **Rank screenshot** for *each* selected game.
-3. **Interactive Owner Review Panel (`/owner`):**
-   * Decodes multiple game applications dynamically.
-   * Renders all document scans and rank screenshots as **interactive clickable thumbnails** directly inside the owner dashboard, ensuring the site owner can easily review and click to zoom on application images.
+### 1. Regulatory Framework Page (`/rules`)
+- **Simplified Branding:** Replaced overdone branding with a cleaner title: **`// REGULATORY FRAMEWORK & RULES`** and set versioning to **`VERSION 1.0`**.
+- **Account Protection Section:** Renamed the safety tab to **Account Protection** and removed any cheesy phrasing.
+- **Straightforward Wording:**
+  - **TOS & Booster Conduct:** Maintained the solid rules, Platform Fee (10%), and code of conduct guidelines.
+  - **Escrow System:** Replaced technobabble with a clear, step-by-step transaction flow (Deposit, Work, Inspection, Release) and simplified explanations for the **72-hour auto-release timer** and dispute arbitration.
+  - **Account Protection:** Simplified descriptions of VPN matching, stealth settings (Appear Offline), password encryption, and ban protection refunds to make them direct and trustworthy without sounding exaggerated.
+  - **Information Sidebar:** Renamed the sidebar box to **Escrow Protection** with clean and direct wording.
+
+### 2. Streamlined Global Footer (`layout.tsx`)
+- **Trade Security Section:** Removed fake/cheesy security statistics and replaced them with clear, functional status indicators:
+  - **Escrow Protection:** `ACTIVE`
+  - **Booster Verification:** `ENABLED`
+  - **Dispute Support:** `24/7 SUPPORT`
+- **Branding Cleanups:** Removed the unnecessary `CLASSIFIED INFORMATION // SYSTEM ACCESS ENVELOPE` text at the bottom.
+- **Link Updating:** Updated links to match the simplified sections (e.g. Terms of Service, Escrow System, Account Protection).
+
+---
+
+## Verification & Build Results:
+We verified page compilation and routing integrity by running a Next.js build:
+```bash
+npm.cmd run build
+```
+- **Result:** Build completed successfully.
