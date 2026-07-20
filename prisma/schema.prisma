@@ -23,6 +23,7 @@ model User {
   payoutMethod String?  // Crypto, CashApp, PayPal
   payoutAddress String?
   slogan       String?  @db.VarChar(100)
+  lastUsernameChange DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userLogs     UserLog[]
