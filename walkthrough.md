@@ -18,7 +18,7 @@ We have successfully created a clear and professional policies and rules page (`
   - **Escrow Protection:** `ACTIVE`
   - **Booster Verification:** `ENABLED`
   - **Dispute Support:** `24/7 SUPPORT`
-- **Branding Cleanups:** Removed the unnecessary `CLASSIFIED INFORMATION // SYSTEM ACCESS ENVELOPE` text at the bottom.
+- **Branding Cleanups:** Removed the word &quot;decentralized&quot; and the unnecessary `CLASSIFIED INFORMATION // SYSTEM ACCESS ENVELOPE` text at the bottom.
 - **Link Updating:** Updated links to match the simplified sections (e.g. Terms of Service, Escrow System, Account Protection).
 
 ---

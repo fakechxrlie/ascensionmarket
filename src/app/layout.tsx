@@ -74,7 +74,7 @@ export default async function RootLayout({
                 <div>
                   <a href="/" className="logo" style={{ textDecoration: 'none', display: 'block', marginBottom: '10px' }}>// ASCENSION</a>
                   <p className="font-mono" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', maxWidth: '400px', lineHeight: '1.5' }}>
-                    A decentralized, high-security rank optimization marketplace. 
+                    A high-security rank optimization marketplace. 
                     All transactions are escrow-secured and encrypted at rest.
                   </p>
                 </div>

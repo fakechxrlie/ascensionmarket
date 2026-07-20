@@ -79,6 +79,37 @@ const GAME_DATA: Record<string, any> = {
       { name: 'Unreal', divisions: [] },
       { name: 'Unreal Legend', divisions: [] }
     ]
+  },
+  cs2: {
+    name: 'Counter-Strike 2',
+    platforms: ['PC'],
+    pointsName: 'Elo',
+    ranks: [
+      { name: '0 - 4,999 (Grey)', divisions: [] },
+      { name: '5,000 - 9,999 (Light Blue)', divisions: [] },
+      { name: '10,000 - 14,999 (Blue)', divisions: [] },
+      { name: '15,000 - 19,999 (Purple)', divisions: [] },
+      { name: '20,000 - 24,999 (Fuchsia)', divisions: [] },
+      { name: '25,000 - 29,999 (Red)', divisions: [] },
+      { name: '30,000+ (Gold)', divisions: [] }
+    ]
+  },
+  cs2_faceit: {
+    name: 'Counter-Strike 2',
+    platforms: ['PC'],
+    pointsName: 'Elo',
+    ranks: [
+      { name: 'Level 1', divisions: [] },
+      { name: 'Level 2', divisions: [] },
+      { name: 'Level 3', divisions: [] },
+      { name: 'Level 4', divisions: [] },
+      { name: 'Level 5', divisions: [] },
+      { name: 'Level 6', divisions: [] },
+      { name: 'Level 7', divisions: [] },
+      { name: 'Level 8', divisions: [] },
+      { name: 'Level 9', divisions: [] },
+      { name: 'Level 10', divisions: [] }
+    ]
   }
 };
 
@@ -93,6 +124,9 @@ export default function GameMarket({ params }: { params: Promise<{ game: string 
   const [endRank, setEndRank] = useState(game.ranks[game.ranks.length - 1].name);
   const [endDiv, setEndDiv] = useState(game.ranks[game.ranks.length - 1].divisions?.[0] || '');
   const [endPts, setEndPts] = useState('');
+
+  const [cs2Mode, setCs2Mode] = useState<'premier' | 'faceit'>('premier');
+  const activeRanks = gameKey === 'cs2' && cs2Mode === 'faceit' ? GAME_DATA['cs2_faceit'].ranks : game.ranks;
 
   const [platform, setPlatform] = useState(game.platforms ? game.platforms[0] : 'PC');
   const [badgeOnly, setBadgeOnly] = useState(false);
@@ -109,7 +143,7 @@ export default function GameMarket({ params }: { params: Promise<{ game: string 
 
   const handleStartRankChange = (val: string) => {
     setStartRank(val);
-    const newRankData = game.ranks.find((r: any) => r.name === val);
+    const newRankData = activeRanks.find((r: any) => r.name === val);
     if (newRankData && newRankData.divisions.length > 0) {
       setStartDiv(newRankData.divisions[0]);
     } else {
@@ -119,7 +153,7 @@ export default function GameMarket({ params }: { params: Promise<{ game: string 
 
   const handleEndRankChange = (val: string) => {
     setEndRank(val);
-    const newRankData = game.ranks.find((r: any) => r.name === val);
+    const newRankData = activeRanks.find((r: any) => r.name === val);
     if (newRankData && newRankData.divisions.length > 0) {
       setEndDiv(newRankData.divisions[0]);
     } else {
@@ -127,8 +161,17 @@ export default function GameMarket({ params }: { params: Promise<{ game: string 
     }
   };
 
-  const startRankData = game.ranks.find((r: any) => r.name === startRank) || game.ranks[0];
-  const endRankData = game.ranks.find((r: any) => r.name === endRank) || game.ranks[0];
+  const handleCs2ModeChange = (mode: 'premier' | 'faceit') => {
+    setCs2Mode(mode);
+    const newRanks = mode === 'faceit' ? GAME_DATA['cs2_faceit'].ranks : game.ranks;
+    setStartRank(newRanks[0].name);
+    setEndRank(newRanks[newRanks.length - 1].name);
+    setStartPts('');
+    setEndPts('');
+  };
+
+  const startRankData = activeRanks.find((r: any) => r.name === startRank) || activeRanks[0];
+  const endRankData = activeRanks.find((r: any) => r.name === endRank) || activeRanks[0];
 
   const handlePostOrder = async () => {
     try {
@@ -146,6 +189,7 @@ export default function GameMarket({ params }: { params: Promise<{ game: string 
           options: [
             ...Object.keys(options).filter(k => options[k as keyof typeof options]),
             `Platform: ${platform}`,
+            ...(gameKey === 'cs2' ? [`Mode: ${cs2Mode.toUpperCase()}`] : []),
             ...(badgeOnly ? ['BADGE BOOST', `Badges: ${selectedBadges}`] : []),
             ...(extraDetails.trim() ? [`Extra Details: ${extraDetails}`] : [])
           ]
@@ -225,6 +269,28 @@ export default function GameMarket({ params }: { params: Promise<{ game: string 
                 options={game.platforms || ['PC', 'PlayStation', 'Xbox']} 
               />
             </div>
+            {gameKey === 'cs2' && (
+              <div className="form-group" style={{ flex: 1 }}>
+                <label className="font-mono">CS2 Mode</label>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button 
+                    onClick={() => handleCs2ModeChange('premier')} 
+                    className={`option-btn ${cs2Mode === 'premier' ? 'active' : ''}`} 
+                    style={{ padding: '8px 15px' }}
+                  >
+                    PREMIER
+                  </button>
+                  <button 
+                    onClick={() => handleCs2ModeChange('faceit')} 
+                    className={`option-btn ${cs2Mode === 'faceit' ? 'active' : ''}`} 
+                    style={{ padding: '8px 15px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                  >
+                    <img src="/assets/faceit.png" alt="FACEIT" style={{ width: '16px', height: '16px' }} />
+                    FACEIT
+                  </button>
+                </div>
+              </div>
+            )}
             {gameKey === 'apex' && (
               <div className="form-group" style={{ flex: 1, display: 'flex', alignItems: 'center', marginTop: '20px' }}>
                 <div onClick={() => setBadgeOnly(!badgeOnly)} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
@@ -255,7 +321,7 @@ export default function GameMarket({ params }: { params: Promise<{ game: string 
                 <CustomSelect 
                   value={startRank} 
                   onChange={handleStartRankChange} 
-                  options={game.ranks.map((r: any) => r.name)} 
+                  options={activeRanks.map((r: any) => r.name)} 
                 />
               </div>
               {startRankData.divisions.length > 0 && (
@@ -285,7 +351,7 @@ export default function GameMarket({ params }: { params: Promise<{ game: string 
                 <CustomSelect 
                   value={endRank} 
                   onChange={handleEndRankChange} 
-                  options={game.ranks.map((r: any) => r.name)} 
+                  options={activeRanks.map((r: any) => r.name)} 
                 />
               </div>
               {endRankData.divisions.length > 0 && (

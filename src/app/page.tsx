@@ -6,7 +6,8 @@ export default function Home() {
     { id: 'valorant', name: 'Valorant', image: '/assets/valorant_bg.png' },
     { id: 'r6', name: 'Rainbow 6 Siege', image: '/assets/r6_bg.png' },
     { id: 'rl', name: 'Rocket League', image: '/assets/rl_bg.png' },
-    { id: 'fortnite', name: 'Fortnite', image: '/assets/fn_bg.png' }
+    { id: 'fortnite', name: 'Fortnite', image: '/assets/fn_bg.png' },
+    { id: 'cs2', name: 'Counter-Strike 2', image: '/assets/cs2_bg.png' }
   ];
 
   return (
