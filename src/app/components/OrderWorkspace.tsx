@@ -2,11 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import OrderChat from './OrderChat';
 
+import BoosterProfileModal from './BoosterProfileModal';
+
 export default function OrderWorkspace({ order, currentUserId, currentUsername, isBuyer, isBooster }: any) {
   const [threads, setThreads] = useState<any[]>([]);
   const [activeBoosterId, setActiveBoosterId] = useState<string | null>(isBooster ? currentUserId : null);
   const [statusMsg, setStatusMsg] = useState<{ text: string; isError: boolean } | null>(null);
   const [payingBidId, setPayingBidId] = useState<string | null>(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   // For Booster Bid Form
   const [bidAmount, setBidAmount] = useState('');
@@ -19,14 +22,13 @@ export default function OrderWorkspace({ order, currentUserId, currentUsername, 
       const int = setInterval(fetchThreads, 5000);
       return () => clearInterval(int);
     }
-  }, [isBuyer, activeBoosterId]); // Refetch if active chat changes (to mark read)
+  }, [isBuyer, activeBoosterId]);
 
   const fetchThreads = async () => {
     const res = await fetch(`/api/orders/${order.id}/threads`);
     if (res.ok) {
       const data = await res.json();
       setThreads(data.threads);
-      // Auto-select first thread if none selected
       if (!activeBoosterId && data.threads.length > 0) {
         setActiveBoosterId(data.threads[0].boosterId);
       }
@@ -67,9 +69,8 @@ export default function OrderWorkspace({ order, currentUserId, currentUsername, 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: parseFloat(bidAmount) })
       });
-      if (res.ok) {
-        window.location.reload();
-      } else {
+      if (res.ok) window.location.reload();
+      else {
         const data = await res.json();
         setStatusMsg({ text: data.error, isError: true });
         setBidding(false);
@@ -102,6 +103,11 @@ export default function OrderWorkspace({ order, currentUserId, currentUsername, 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '20px', height: '600px' }}>
       
+      {/* Profile Modal */}
+      {showProfileModal && activeThread && (
+        <BoosterProfileModal booster={activeThread} onClose={() => setShowProfileModal(false)} />
+      )}
+
       {/* LEFT SIDEBAR */}
       <div className="panel" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {isBuyer ? (
@@ -115,48 +121,59 @@ export default function OrderWorkspace({ order, currentUserId, currentUsername, 
                   [WAITING FOR BOOSTERS...]
                 </div>
               ) : (
-                threads.map(t => (
-                  <div 
-                    key={t.boosterId} 
-                    onClick={() => setActiveBoosterId(t.boosterId)}
-                    style={{ 
-                      padding: '15px', 
-                      borderBottom: '1px solid var(--border-light)',
-                      background: activeBoosterId === t.boosterId ? 'var(--bg-input)' : 'transparent',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px',
-                      transition: 'background 0.2s'
-                    }}
-                  >
-                    <div style={{ 
-                      width: '40px', height: '40px', background: '#1c1d21', border: '1px solid var(--border-light)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: 'var(--brand)'
-                    }} className="font-mono">
-                      {t.username.slice(0, 2).toUpperCase()}
-                    </div>
-                    <div style={{ flex: 1, overflow: 'hidden' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span className="font-mono" style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-main)' }}>{t.username}</span>
-                        {t.unreadCount > 0 && (
-                          <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--brand)' }} />
-                        )}
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px', alignItems: 'center' }}>
-                        <span className="font-mono" style={{ fontSize: '0.75rem', color: 'var(--accent)' }}>{t.rating} ★</span>
-                        <span className="font-mono" style={{ fontSize: '0.8rem', color: 'var(--text-main)' }}>
-                          {t.bidAmount ? <strong style={{ color: 'var(--brand)' }}>${t.bidAmount.toFixed(2)}</strong> : '-'}
-                        </span>
-                      </div>
-                      {t.lastMessage && (
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {t.lastMessage.text}
+                threads.map(t => {
+                  const borderStyle = t.level >= 10 ? '2px double var(--brand)' : '1px solid var(--border-light)';
+                  return (
+                    <div 
+                      key={t.boosterId} 
+                      onClick={() => setActiveBoosterId(t.boosterId)}
+                      style={{ 
+                        padding: '15px', 
+                        borderBottom: '1px solid var(--border-light)',
+                        background: activeBoosterId === t.boosterId ? 'var(--bg-input)' : 'transparent',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        transition: 'background 0.2s'
+                      }}
+                    >
+                      {t.avatarUrl ? (
+                        <img 
+                          src={t.avatarUrl} 
+                          alt={t.username} 
+                          style={{ width: '40px', height: '40px', objectFit: 'cover', border: borderStyle }} 
+                        />
+                      ) : (
+                        <div style={{ 
+                          width: '40px', height: '40px', background: '#1c1d21', border: borderStyle,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: 'var(--brand)'
+                        }} className="font-mono">
+                          {t.username.slice(0, 2).toUpperCase()}
                         </div>
                       )}
+                      <div style={{ flex: 1, overflow: 'hidden' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span className="font-mono" style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-main)' }}>{t.username}</span>
+                          {t.unreadCount > 0 && (
+                            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--brand)' }} />
+                          )}
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px', alignItems: 'center' }}>
+                          <span className="font-mono" style={{ fontSize: '0.75rem', color: 'var(--accent)' }}>{t.rating} ★</span>
+                          <span className="font-mono" style={{ fontSize: '0.8rem', color: 'var(--text-main)' }}>
+                            {t.bidAmount ? <strong style={{ color: 'var(--brand)' }}>${t.bidAmount.toFixed(2)}</strong> : '-'}
+                          </span>
+                        </div>
+                        {t.lastMessage && (
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {t.lastMessage.text}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </>
@@ -197,10 +214,36 @@ export default function OrderWorkspace({ order, currentUserId, currentUsername, 
         
         {isBuyer && activeBoosterId && activeThread && (
           <div className="panel" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', padding: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <div className="font-mono" style={{ fontSize: '1rem', color: 'var(--text-main)', fontWeight: 'bold' }}>{activeThread.username}</div>
-              <div className="font-mono" style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Bid: {activeThread.bidAmount ? <span style={{ color: 'var(--brand)' }}>${activeThread.bidAmount.toFixed(2)}</span> : 'None yet'}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+              {activeThread.avatarUrl ? (
+                <img 
+                  src={activeThread.avatarUrl} 
+                  alt={activeThread.username} 
+                  style={{ width: '45px', height: '45px', objectFit: 'cover', border: activeThread.level >= 10 ? '2px double var(--brand)' : '1px solid var(--border-light)', cursor: 'pointer' }} 
+                  onClick={() => setShowProfileModal(true)}
+                />
+              ) : (
+                <div 
+                  onClick={() => setShowProfileModal(true)}
+                  style={{ 
+                    width: '45px', height: '45px', background: 'var(--bg-input)', border: activeThread.level >= 10 ? '2px double var(--brand)' : '1px solid var(--border-light)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: 'var(--brand)', cursor: 'pointer'
+                  }} className="font-mono">
+                  {activeThread.username.slice(0, 2).toUpperCase()}
+                </div>
+              )}
+              
+              <div>
+                <div 
+                  className="font-mono" 
+                  style={{ fontSize: '1.1rem', color: 'var(--text-main)', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'underline decoration-var(--border-light)' }}
+                  onClick={() => setShowProfileModal(true)}
+                >
+                  {activeThread.username}
+                </div>
+                <div className="font-mono" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                  <span style={{ color: 'var(--accent)' }}>{activeThread.rating} ★</span> ({activeThread.reviewCount} reviews) • Bid: {activeThread.bidAmount ? <span style={{ color: 'var(--brand)' }}>${activeThread.bidAmount.toFixed(2)}</span> : 'None yet'}
+                </div>
               </div>
             </div>
             

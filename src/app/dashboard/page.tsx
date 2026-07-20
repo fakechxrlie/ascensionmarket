@@ -61,18 +61,7 @@ export default async function Dashboard() {
     ? '3px double var(--brand)' 
     : '1px solid var(--border-light)';
 
-  // Server Action: Update profile picture
-  async function updateAvatar(formData: FormData) {
-    "use server";
-    const avatarUrl = formData.get('avatarUrl') as string;
-    const { prisma } = await import('@/lib/prisma');
-    const { revalidatePath } = await import('next/cache');
-    await prisma.user.update({
-      where: { id: userId },
-      data: { avatarUrl }
-    });
-    revalidatePath('/dashboard');
-  }
+  // (Removed updateAvatar in favor of Settings page)
 
   // Server Action: Submit review
   async function submitReview(formData: FormData) {
@@ -187,21 +176,13 @@ export default async function Dashboard() {
 
           <hr style={{ borderColor: 'var(--border-light)' }} />
 
-          {/* Profile Photo Editor Form */}
-          <form action={updateAvatar} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <span className="font-mono" style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>AVATAR URL:</span>
-            <input 
-              type="text" 
-              name="avatarUrl" 
-              placeholder="Paste image URL (e.g., https://...)" 
-              defaultValue={user.avatarUrl || ''} 
-              className="input-field" 
-              style={{ flex: 1, margin: 0, padding: '6px 10px', fontSize: '0.8rem', height: '32px' }} 
-            />
-            <button type="submit" className="btn-primary" style={{ width: 'auto', padding: '6px 15px', fontSize: '0.75rem', height: '32px' }}>
-              SAVE PHOTO
-            </button>
-          </form>
+          <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+            <a href="/dashboard/settings" style={{ textDecoration: 'none' }}>
+              <button className="btn-primary" style={{ width: 'auto', padding: '8px 20px', fontSize: '0.8rem' }}>
+                ACCOUNT SETTINGS ➜
+              </button>
+            </a>
+          </div>
         </div>
       )}
 

@@ -12,74 +12,66 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     const p = await params;
     const orderId = p.id;
 
-    // Fetch all bids for this order
-    const bids = await prisma.bid.findMany({
-      where: { orderId },
-      include: { 
-        booster: { 
-          select: { id: true, username: true, reviewsReceived: { select: { rating: true } } } 
-        } 
-      }
-    });
-
-    // Fetch all messages for this order to derive threads
+    const bids = await prisma.bid.findMany({ where: { orderId } });
+    
     const messages = await prisma.message.findMany({
       where: { orderId, threadBoosterId: { not: null } },
       include: { sender: { select: { id: true, username: true } } },
       orderBy: { createdAt: 'desc' }
     });
 
-    const threadMap = new Map<string, any>();
+    const boosterIds = new Set<string>();
+    bids.forEach(b => boosterIds.add(b.boosterId));
+    messages.forEach(m => boosterIds.add(m.threadBoosterId!));
 
-    // 1. Add all boosters who have bidded
-    for (const bid of bids) {
-      if (!threadMap.has(bid.boosterId)) {
-        const ratingSum = bid.booster.reviewsReceived.reduce((sum: number, r: any) => sum + r.rating, 0);
-        const avgRating = bid.booster.reviewsReceived.length ? (ratingSum / bid.booster.reviewsReceived.length).toFixed(1) : 'New';
-        
-        threadMap.set(bid.boosterId, {
-          boosterId: bid.boosterId,
-          username: bid.booster.username,
-          rating: avgRating,
-          bidAmount: bid.amount,
-          lastMessage: null,
-          unreadCount: 0
-        });
-      }
+    if (boosterIds.size === 0) {
+      return NextResponse.json({ threads: [] });
     }
 
-    // 2. Add/Update threads based on messages
-    for (const msg of messages) {
-      const bId = msg.threadBoosterId!;
-      if (!threadMap.has(bId)) {
-        threadMap.set(bId, {
-          boosterId: bId,
-          username: msg.senderId === bId ? msg.sender.username : 'Booster',
-          rating: 'New', 
-          bidAmount: null,
-          lastMessage: null,
-          unreadCount: 0
-        });
+    const boosters = await prisma.user.findMany({
+      where: { id: { in: Array.from(boosterIds) } },
+      select: {
+        id: true,
+        username: true,
+        avatarUrl: true,
+        level: true,
+        xp: true,
+        slogan: true,
+        reviewsReceived: {
+          select: {
+            rating: true,
+            comment: true,
+            buyer: { select: { username: true } }
+          }
+        }
       }
+    });
 
-      const thread = threadMap.get(bId);
-      
-      // Since messages are sorted desc, the first one we see is the last message
-      if (!thread.lastMessage) {
-        thread.lastMessage = {
-          text: msg.text,
-          createdAt: msg.createdAt
-        };
-      }
+    const threads = boosters.map(booster => {
+      const bid = bids.find(b => b.boosterId === booster.id);
+      const threadMsgs = messages.filter(m => m.threadBoosterId === booster.id);
+      const lastMessage = threadMsgs.length > 0 ? { text: threadMsgs[0].text, createdAt: threadMsgs[0].createdAt } : null;
+      const unreadCount = threadMsgs.filter(m => !m.isRead && m.senderId !== currentUserId).length;
 
-      // Count unread (sent by someone else)
-      if (!msg.isRead && msg.senderId !== currentUserId) {
-        thread.unreadCount += 1;
-      }
-    }
+      const ratingSum = booster.reviewsReceived.reduce((sum, r) => sum + r.rating, 0);
+      const avgRating = booster.reviewsReceived.length ? (ratingSum / booster.reviewsReceived.length).toFixed(1) : 'New';
 
-    const threads = Array.from(threadMap.values());
-    
+      return {
+        boosterId: booster.id,
+        username: booster.username,
+        avatarUrl: booster.avatarUrl,
+        level: booster.level,
+        xp: booster.xp,
+        slogan: booster.slogan,
+        rating: avgRating,
+        reviewCount: booster.reviewsReceived.length,
+        reviews: booster.reviewsReceived, // includes buyer { username }
+        bidAmount: bid ? bid.amount : null,
+        lastMessage,
+        unreadCount
+      };
+    });
+
     // Sort by most recently active
     threads.sort((a, b) => {
       const timeA = a.lastMessage?.createdAt ? new Date(a.lastMessage.createdAt).getTime() : 0;
