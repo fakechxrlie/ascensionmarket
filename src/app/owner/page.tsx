@@ -113,6 +113,76 @@ export default async function OwnerPanel({ searchParams }: { searchParams: Promi
     revalidatePath('/owner');
   }
 
+  async function assignBooster(formData: FormData) {
+    "use server";
+    const orderId = formData.get('orderId') as string;
+    const boosterId = formData.get('boosterId') as string;
+    const bidAmount = parseFloat(formData.get('bidAmount') as string || '0');
+
+    const { prisma } = await import('@/lib/prisma');
+    const { revalidatePath } = await import('next/cache');
+
+    if (!boosterId) {
+      // Unassign booster (if they select the empty option)
+      const existingAccepted = await prisma.bid.findFirst({
+        where: { orderId, status: 'ACCEPTED' }
+      });
+      if (existingAccepted) {
+        await prisma.bid.update({
+          where: { id: existingAccepted.id },
+          data: { status: 'PENDING' }
+        });
+      }
+      await prisma.order.update({
+        where: { id: orderId },
+        data: { status: 'OPEN', escrowAmount: 0 }
+      });
+      revalidatePath('/owner');
+      return;
+    }
+
+    // Check if there is an existing accepted bid
+    const existingAccepted = await prisma.bid.findFirst({
+      where: { orderId, status: 'ACCEPTED' }
+    });
+
+    if (existingAccepted) {
+      await prisma.bid.update({
+        where: { id: existingAccepted.id },
+        data: { status: 'PENDING' }
+      });
+    }
+
+    // Check if booster already has a bid on this order
+    const existingBid = await prisma.bid.findFirst({
+      where: { orderId, boosterId }
+    });
+
+    if (existingBid) {
+      await prisma.bid.update({
+        where: { id: existingBid.id },
+        data: { status: 'ACCEPTED', amount: bidAmount }
+      });
+    } else {
+      await prisma.bid.create({
+        data: {
+          orderId,
+          boosterId,
+          amount: bidAmount,
+          status: 'ACCEPTED'
+        }
+      });
+    }
+
+    // Update order status to IN_PROGRESS and set escrow
+    await prisma.order.update({
+      where: { id: orderId },
+      data: { status: 'IN_PROGRESS', escrowAmount: bidAmount }
+    });
+
+    revalidatePath('/owner');
+  }
+
   const applications = tab === 'applications' ? await prisma.boosterApplication.findMany({
     where: { status: 'PENDING' },
     include: { user: { select: { username: true, email: true } } }
@@ -124,13 +194,13 @@ export default async function OwnerPanel({ searchParams }: { searchParams: Promi
   }) : [];
   
   const orders = tab === 'orders' ? await prisma.order.findMany({
-    include: { buyer: true, bids: { where: { status: 'ACCEPTED' }, include: { booster: true } } },
+    include: { buyer: true, bids: { include: { booster: true } } },
     orderBy: { createdAt: 'desc' }
   }) : [];
 
   const disputes = tab === 'disputes' ? await prisma.order.findMany({
     where: { status: 'DISPUTED' },
-    include: { buyer: true, bids: { where: { status: 'ACCEPTED' }, include: { booster: true } } },
+    include: { buyer: true, bids: { include: { booster: true } } },
     orderBy: { createdAt: 'desc' }
   }) : [];
 
@@ -138,6 +208,12 @@ export default async function OwnerPanel({ searchParams }: { searchParams: Promi
     include: { user: true },
     orderBy: { createdAt: 'desc' }
   }) : [];
+
+  const boosters = await prisma.user.findMany({
+    where: { role: 'BOOSTER' },
+    select: { id: true, username: true },
+    orderBy: { username: 'asc' }
+  });
 
   return (
     <main className="container">
@@ -313,12 +389,12 @@ export default async function OwnerPanel({ searchParams }: { searchParams: Promi
 
         {/* --- ORDERS TAB --- */}
         {tab === 'orders' && (
-          <OwnerOrdersTab orders={orders} updateOrderStatus={updateOrderStatus} resolveDispute={resolveDispute} />
+          <OwnerOrdersTab orders={orders} boosters={boosters} updateOrderStatus={updateOrderStatus} resolveDispute={resolveDispute} assignBooster={assignBooster} />
         )}
 
         {/* --- DISPUTES TAB --- */}
         {tab === 'disputes' && (
-          <OwnerOrdersTab orders={disputes} updateOrderStatus={updateOrderStatus} resolveDispute={resolveDispute} />
+          <OwnerOrdersTab orders={disputes} boosters={boosters} updateOrderStatus={updateOrderStatus} resolveDispute={resolveDispute} assignBooster={assignBooster} />
         )}
 
         {/* --- PAYOUTS TAB --- */}
